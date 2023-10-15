@@ -13,14 +13,14 @@ provider "yandex" {
   zone = "ru-central1-a"
 }
 
-resource "yandex_vpc_network" "network-2" {
+resource "yandex_vpc_network" "central-1-network" {
   name = "network2"
 }
 
 resource "yandex_vpc_subnet" "subnet-2" {
   name           = "subnet2"
   zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.network-2.id
+  network_id     = yandex_vpc_network.central-1-network.id
   v4_cidr_blocks = ["192.168.100.0/24"]
 }
 
@@ -35,7 +35,7 @@ resource "yandex_lb_network_load_balancer" "lb-1" {
     }
 }
   attached_target_group {
-    target_group_id = yandex_lb_target_group.test-1.id
+    target_group_id = yandex_lb_target_group.load_balancer.id
     healthcheck {
       name = "http"
       http_options {
@@ -43,11 +43,18 @@ resource "yandex_lb_network_load_balancer" "lb-1" {
         path = "/"
       }
     }
+    healthcheck {
+    name = "https"
+    http_options {
+      port = 443
+      path = "/"
+      }
+    }
   }
 }
 
-resource "yandex_lb_target_group" "test-1" {
-  name      = "test-1"
+resource "yandex_lb_target_group" "load_balancer" {
+  name      = "load_balancer"
   target {
     subnet_id = yandex_vpc_subnet.subnet-2.id
     address   = yandex_compute_instance.vm[0].network_interface.0.ip_address
