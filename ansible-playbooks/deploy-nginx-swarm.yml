@@ -28,7 +28,7 @@
       command: >
         docker service create 
         --name nginx 
-        --replicas 2 
+        --replicas 1 
         --publish published=80,target=80 
         --mount type=bind,src=/tmp/index.html,dst=/usr/share/nginx/html/index.html 
         nginx:latest
