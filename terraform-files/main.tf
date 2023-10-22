@@ -80,6 +80,6 @@ resource "yandex_compute_instance" "vm" {
   }
 
   metadata = {
-    user-data = file("./meta.yml")
+    user-data = templatefile("./meta.yml", { index = count.index })
   }
 }
