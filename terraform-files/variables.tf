@@ -9,7 +9,7 @@ variable "folder_id" {
 }
 
 variable "zone" {
-  description = "Зона доступности. Например: ru-central1-a"
+  description = "Зона доступности. Например: ru-central1-a или ru-central1-b или ru-central1-c"
   type        = string
 }
 
@@ -44,12 +44,12 @@ variable "vm_memory" {
 }
 
 variable "network_name" {
-  description = "Имя сети. Например: network2"
+  description = "Имя сети. Например: network1"
   type        = string
 }
 
 variable "subnet_name" {
-  description = "Имя подсети. Например: subnet2"
+  description = "Имя подсети. Например: subnet1"
   type        = string
 }
 
