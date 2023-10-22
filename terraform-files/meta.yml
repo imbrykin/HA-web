@@ -1,5 +1,5 @@
 #cloud-config
-hostname: "vm{{ index }}"
+hostname: "vm${index}"
 users:
  - name: user
    groups: sudo

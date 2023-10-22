@@ -14,7 +14,7 @@ variable "zone" {
 }
 
 variable "v4_cidr_blocks" {
-  description = "CIDR блок для вашей подсети. Например: 192.168.100.0/24"
+  description = "CIDR блок для вашей подсети. Например: 192.168.1.0/24"
   type        = string
 }
 
@@ -29,27 +29,27 @@ variable "image_id" {
 }
 
 variable "disk_size" {
-  description = "Размер диска для VM (в ГБ)."
+  description = "Размер диска для VM (в ГБ). Например: 10"
   type        = number
 }
 
 variable "vm_cores" {
-  description = "Количество ядер для каждой VM"
+  description = "Количество ядер для каждой VM. Например: 2"
   type        = number
 }
 
 variable "vm_memory" {
-  description = "Объем памяти для каждой VM (в ГБ)."
+  description = "Объем памяти для каждой VM (в ГБ). Например: 10"
   type        = number
 }
 
 variable "network_name" {
-  description = "Имя сети. Например: network1"
+  description = "Имя сети. Например: network2"
   type        = string
 }
 
 variable "subnet_name" {
-  description = "Имя подсети. Например: subnet1"
+  description = "Имя подсети. Например: subnet2"
   type        = string
 }
 
@@ -59,6 +59,6 @@ variable "lb_name" {
 }
 
 variable "target_group_name" {
-  description = "Имя target group для сетевого балансировщика нагрузки. Например: testgroup1"
+  description = "Имя target group для сетевого балансировщика нагрузки. Например: hanginx1"
   type        = string
 }
