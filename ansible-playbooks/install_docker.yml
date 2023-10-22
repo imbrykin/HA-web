@@ -61,5 +61,5 @@
   become: yes
   tasks:
     - name: Join Swarm cluster
-      command: docker swarm join --token {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_worker_token'] }} {{ hostvars[groups['docker_swarm_manager'][0]]['ansible_host'] }}:2377
+      command: docker swarm join --token {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_worker_token'] }} {{ hostvars[groups['docker_swarm_manager'][0]]['inventory_hostname'] }}:2377
       ignore_errors: no
