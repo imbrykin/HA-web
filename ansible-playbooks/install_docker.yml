@@ -1,8 +1,18 @@
 ---
-- name: Install Docker
+- name: Install Docker and Dependencies
   hosts: all
   become: yes
   tasks:
+    - name: Update APT cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install gnupg for GPG key handling
+      apt:
+        name: gnupg
+        state: present
+
     - name: Install required packages
       apt:
         name: 
@@ -34,7 +44,7 @@
   tasks:
     - name: Initialize Swarm
       command: docker swarm init --advertise-addr {{ ansible_host }}
-      ignore_errors: yes
+      ignore_errors: no
       register: swarm_result
 
     - name: Get Swarm join token for workers
@@ -52,4 +62,4 @@
   tasks:
     - name: Join Swarm cluster
       command: docker swarm join --token {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_worker_token'] }} {{ hostvars[groups['docker_swarm_manager'][0]]['ansible_host'] }}:2377
-      ignore_errors: yes
+      ignore_errors: no
