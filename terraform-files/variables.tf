@@ -1,11 +1,14 @@
+#Дефолтное значение нужно поменять на своё
 variable "cloud_id" {
   description = "ID вашего облака в Yandex.Cloud"
   type        = string
+  default     = "b1g2445ompelboq61fkg"
 }
-
+#Дефолтное значение нужно поменять на своё
 variable "folder_id" {
   description = "ID папки в Yandex.Cloud"
   type        = string
+  default     = "b1g43omr5aea4kut7i6f"
 }
 
 variable "zone" {
