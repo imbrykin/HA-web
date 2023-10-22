@@ -28,28 +28,28 @@
         update_cache: yes
         state: present
 
-    - name: Initialize Docker Swarm
-      hosts: first_machine_ip
-      become: yes
-      tasks:
-        - name: Initialize Swarm
-          command: docker swarm init --advertise-addr {{ ansible_host }}
-          ignore_errors: yes
-          register: swarm_result
+- name: Initialize Docker Swarm
+  hosts: docker_swarm_manager
+  become: yes
+  tasks:
+    - name: Initialize Swarm
+      command: docker swarm init --advertise-addr {{ ansible_host }}
+      ignore_errors: yes
+      register: swarm_result
 
-        - name: Get Swarm join token for workers
-          command: docker swarm join-token -q worker
-          when: swarm_result is changed
-          register: worker_token
+    - name: Get Swarm join token for workers
+      command: docker swarm join-token -q worker
+      when: swarm_result is changed
+      register: worker_token
 
-        - name: Store worker token
-          set_fact:
-            swarm_worker_token: "{{ worker_token.stdout }}"
+    - name: Store worker token
+      set_fact:
+        swarm_worker_token: "{{ worker_token.stdout }}"
 
-    - name: Join Swarm as worker
-      hosts: second_machine_ip
-      become: yes
-      tasks:
-        - name: Join Swarm cluster
-          command: docker swarm join --token {{ hostvars['first_machine_ip']['swarm_worker_token'] }} {{ hostvars['first_machine_ip']['ansible_host'] }}:2377
-          ignore_errors: yes
+- name: Join Swarm as worker
+  hosts: docker_swarm_workers
+  become: yes
+  tasks:
+    - name: Join Swarm cluster
+      command: docker swarm join --token {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_worker_token'] }} {{ hostvars[groups['docker_swarm_manager'][0]]['ansible_host'] }}:2377
+      ignore_errors: yes
