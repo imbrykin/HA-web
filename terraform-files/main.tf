@@ -43,13 +43,6 @@ resource "yandex_lb_network_load_balancer" "lb-1" {
         path = "/"
       }
     }
-    healthcheck {
-    name = "https"
-    http_options {
-      port = 443
-      path = "/"
-      }
-    }
   }
 }
 
