@@ -21,7 +21,7 @@ resource "yandex_vpc_subnet" "subnet-2" {
   name           = var.subnet_name
   zone           = var.zone
   network_id     = yandex_vpc_network.central-1-network.id
-  v4_cidr_blocks = var.v4_cidr_blocks
+  v4_cidr_blocks = [var.v4_cidr_blocks]
 }
 
 resource "yandex_lb_network_load_balancer" "lb-1" {

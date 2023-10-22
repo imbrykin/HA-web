@@ -14,8 +14,8 @@ variable "zone" {
 }
 
 variable "v4_cidr_blocks" {
-  description = "CIDR блоки для вашей подсети. Например: 192.168.100.0/24"
-  type        = list(string)
+  description = "CIDR блок для вашей подсети. Например: 192.168.100.0/24"
+  type        = string
 }
 
 variable "vm_count" {
