@@ -1,65 +1,7 @@
----
-- name: Install and configure Nginx
-  hosts: all
+- name: Run NGINX as a service in Docker Swarm
+  hosts: first_machine_ip
   become: yes
   tasks:
-    - name: Install Nginx
-      apt:
-        name: nginx
-        state: present
-        update_cache: yes
-
-    - name: Start and enable Nginx
-      service:
-        name: nginx
-        state: started
-        enabled: yes
-
-    - name: Configure Nginx to listen on ports 80 and 443
-      block:
-        - name: Remove default nginx config
-          file:
-            path: /etc/nginx/sites-enabled/default
-            state: absent
-
-        - name: Add custom nginx config
-          copy:
-            content: |
-              server {
-                listen 80;
-                server_name _;
-                location / {
-                  return 200 'Hello from Nginx on port 80!';
-                  add_header Content-Type text/plain;
-                }
-              }
-              server {
-                listen 443 ssl;
-                server_name _;
-                ssl_certificate /etc/nginx/ssl/nginx.crt;
-                ssl_certificate_key /etc/nginx/ssl/nginx.key;
-                location / {
-                  return 200 'Hello from Nginx on port 443 with SSL!';
-                  add_header Content-Type text/plain;
-                }
-              }
-            dest: /etc/nginx/sites-available/custom_config
-
-        - name: Enable custom nginx config
-          file:
-            src: /etc/nginx/sites-available/custom_config
-            dest: /etc/nginx/sites-enabled/
-            state: link
-
-        - name: Reload Nginx
-          service:
-            name: nginx
-            state: reloaded
-      notify:
-        - Reload Nginx
-
-  handlers:
-    - name: Reload Nginx
-      service:
-        name: nginx
-        state: reloaded
+    - name: Create NGINX service
+      command: docker service create --name nginx --publish published=80,target=80 --replicas=2 nginx
+      ignore_errors: yes

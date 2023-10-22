@@ -1,0 +1,21 @@
+---
+- name: Install Docker and Initialize Docker Swarm
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+      notify:
+        - Start Docker
+
+    - name: Initialize Docker Swarm
+      command: docker swarm init --advertise-addr {{ ansible_default_ipv4.address }}
+      ignore_errors: yes
+
+  handlers:
+    - name: Start Docker
+      service:
+        name: docker
+        state: started

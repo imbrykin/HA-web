@@ -1,0 +1,11 @@
+---
+- name: Deploy nginx on Docker Swarm
+  hosts: all
+  become: yes
+  tasks:
+    - name: Pull nginx image
+      command: docker pull nginx:latest
+
+    - name: Create nginx service in Docker Swarm
+      command: docker service create --name nginx --replicas 1 --publish published=80,target=80 nginx:latest
+      ignore_errors: yes
