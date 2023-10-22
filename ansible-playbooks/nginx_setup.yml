@@ -1,7 +1,0 @@
-- name: Run NGINX as a service in Docker Swarm
-  hosts: first_machine_ip
-  become: yes
-  tasks:
-    - name: Create NGINX service
-      command: docker service create --name nginx --publish published=80,target=80 --replicas=2 nginx
-      ignore_errors: yes
