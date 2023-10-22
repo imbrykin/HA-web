@@ -1,17 +1,5 @@
 #cloud-config
 
-timezone: Europe/Moscow
-repo_update: true
-repo_upgrade: false
-apt:
-  preserve_sources_list: true
-packages:
-  - nginx
-runcmd:
-  - [ systemctl, nginx-reload ]
-  - [ systemctl, enable, nginx.service ]
-  - [ systemctl, start, --no-block, nginx.service ]
-
 users:
  - name: user
    groups: sudo
