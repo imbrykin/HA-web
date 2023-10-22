@@ -1,10 +1,10 @@
 variable "cloud_id" {
-  description = "ID вашего облака в Yandex.Cloud"
+  description = "ID вашего облака в Yandex.Cloud. Например: b1g2445ompelboq61fkg"
   type        = string
 }
 
 variable "folder_id" {
-  description = "ID папки в Yandex.Cloud"
+  description = "ID папки в Yandex.Cloud. Например: b1g43omr5aea4kut7i6f"
   type        = string
 }
 
@@ -19,7 +19,7 @@ variable "v4_cidr_blocks" {
 }
 
 variable "vm_count" {
-  description = "Количество создаваемых VM. Например: 2"
+  description = "Количество создаваемых VM. Например: 3"
   type        = number
 }
 
