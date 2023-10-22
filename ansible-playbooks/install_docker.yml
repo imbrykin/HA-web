@@ -1,5 +1,5 @@
 ---
-- name: Install Docker and Dependencies
+- name: Update APT cache, Install Docker and Dependencies
   hosts: all
   become: yes
   tasks:
