@@ -32,4 +32,4 @@
         --publish published=80,target=80 
         --mount type=bind,src=/tmp/index.html,dst=/usr/share/nginx/html/index.html 
         nginx:latest
-      when: "'docker_swarm_manager' in group_names" and not nginx_service_check.stdout
+      when: "'docker_swarm_manager' in group_names and not nginx_service_check.stdout"
