@@ -39,7 +39,7 @@ variable "vm_cores" {
 }
 
 variable "vm_memory" {
-  description = "Объем памяти для каждой VM (в ГБ). Например: 10"
+  description = "Объем памяти для каждой VM (в ГБ). Например: 2"
   type        = number
 }
 
