@@ -35,7 +35,7 @@ resource "yandex_lb_network_load_balancer" "lb-1" {
     }
 }
   attached_target_group {
-    target_group_id = yandex_lb_target_group.load_balancer.id
+    target_group_id = yandex_lb_target_group.tg_group1.id
     healthcheck {
       name = "http"
       http_options {
@@ -53,8 +53,8 @@ resource "yandex_lb_network_load_balancer" "lb-1" {
   }
 }
 
-resource "yandex_lb_target_group" "load_balancer" {
-  name      = "load_balancer"
+resource "yandex_lb_target_group" "tg_group1" {
+  name      = "tg_group1"
   target {
     subnet_id = yandex_vpc_subnet.subnet-2.id
     address   = yandex_compute_instance.vm[0].network_interface.0.ip_address
