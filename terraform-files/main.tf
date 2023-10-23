@@ -71,7 +71,7 @@ resource "yandex_compute_instance" "vm" {
 
   network_interface {
     subnet_id = yandex_vpc_subnet.subnet-2.id
-    nat       = false
+    nat       = true
   }
 
   resources {
