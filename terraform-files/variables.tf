@@ -38,22 +38,22 @@ variable "vm_memory" {
   type        = number
 }
 
-#Нужно раскомментировать для создания новой сети и подсети. Тоже самое сделать в main.tf
+//Нужно раскомментировать для создания новой сети и подсети. Тоже самое сделать в main.tf
 
-#variable "v4_cidr_blocks" {
-#  description = "CIDR блок для вашей подсети. Например: 192.168.1.0/24"
-#  type        = string
-#}
+//variable "v4_cidr_blocks" {
+//  description = "CIDR блок для вашей подсети. Например: 192.168.1.0/24"
+//  type        = string
+//}
 
-#variable "network_name" {
-#  description = "Имя сети. Например: network2"
-#  type        = string
-#}
+//variable "network_name" {
+//  description = "Имя сети. Например: network2"
+//  type        = string
+//}
 
-#variable "subnet_name" {
-#  description = "Имя подсети. Например: subnet2"
-#  type        = string
-#}
+//variable "subnet_name" {
+//  description = "Имя подсети. Например: subnet2"
+//  type        = string
+//}
 
 variable "use_existing_network" {
   description = "Использовать существующую сеть или нет? Введите true или false"
