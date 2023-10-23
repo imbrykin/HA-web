@@ -45,15 +45,15 @@ variable "vm_memory" {
 //  type        = string
 //}
 
-//variable "network_name" {
-//  description = "Имя сети. Например: network2"
-//  type        = string
-//}
+variable "network_name" {
+  description = "Имя сети. Например: network2"
+  type        = string
+}
 
-//variable "subnet_name" {
-//  description = "Имя подсети. Например: subnet2"
-//  type        = string
-//}
+variable "subnet_name" {
+  description = "Имя подсети. Например: subnet2"
+  type        = string
+}
 
 variable "use_existing_network" {
   description = "Использовать существующую сеть или нет? Введите true или false"
