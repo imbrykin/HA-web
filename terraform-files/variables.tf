@@ -56,7 +56,6 @@ variable "subnet_name" {
 variable "use_existing_network" {
   description = "Использовать существующую сеть или нет? Введите true или false"
   type        = bool
-  default     = false
 }
 
 variable "existing_network_id" {
