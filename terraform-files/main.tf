@@ -13,11 +13,6 @@ provider "yandex" {
   zone      = var.zone
 }
 
-resource "yandex_vpc_network" "central-1-network" {
-  count = var.use_existing_network ? 0 : 1  // Создание сети происходит только если use_existing_network равно false
-  name  = var.network_name
-}
-
 resource "yandex_vpc_subnet" "subnet-2" {
   name           = var.subnet_name
   zone           = var.zone
