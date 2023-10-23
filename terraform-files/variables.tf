@@ -43,15 +43,15 @@ variable "vm_memory" {
   type        = number
 }
 
-variable "network_name" {
-  description = "Имя сети. Например: network2"
-  type        = string
-}
+#variable "network_name" {
+#  description = "Имя сети. Например: network2"
+#  type        = string
+#}
 
-variable "subnet_name" {
-  description = "Имя подсети. Например: subnet2"
-  type        = string
-}
+#variable "subnet_name" {
+#  description = "Имя подсети. Например: subnet2"
+#  type        = string
+#}
 
 variable "use_existing_network" {
   description = "Использовать существующую сеть или нет? Введите true или false"
@@ -59,7 +59,7 @@ variable "use_existing_network" {
 }
 
 variable "existing_network_id" {
-  description = "ID существующей сети. Эту переменную следует задавать только в том случае, если будет использована существующая подсеть."
+  description = "ID существующей сети. Эту переменную следует задавать только в том случае, если будет использована существующая подсеть. Например: enp5gv5qt53unvd3io2t"
   type        = string
 }
 
