@@ -53,6 +53,17 @@ variable "subnet_name" {
   type        = string
 }
 
+variable "use_existing_network" {
+  description = "Использовать существующую сеть или нет? Введите true или false"
+  type        = bool
+  default     = false
+}
+
+variable "existing_network_id" {
+  description = "ID существующей сети. Эту переменную следует задавать только в том случае, если будет использована существующая сеть."
+  type        = string
+}
+
 variable "lb_name" {
   description = "Имя сетевого балансировщика. Например: lb-1"
   type        = string

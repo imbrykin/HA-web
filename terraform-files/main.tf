@@ -14,13 +14,14 @@ provider "yandex" {
 }
 
 resource "yandex_vpc_network" "central-1-network" {
-  name = var.network_name
+  count = var.use_existing_network ? 0 : 1  // Создание сети происходит только если use_existing_network равно false
+  name  = var.network_name
 }
 
 resource "yandex_vpc_subnet" "subnet-2" {
   name           = var.subnet_name
   zone           = var.zone
-  network_id     = yandex_vpc_network.central-1-network.id
+  network_id     = var.use_existing_network ? var.existing_network_id : yandex_vpc_network.central-1-network[0].id
   v4_cidr_blocks = [var.v4_cidr_blocks]
 }
 
