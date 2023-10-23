@@ -13,11 +13,6 @@ variable "zone" {
   type        = string
 }
 
-variable "v4_cidr_blocks" {
-  description = "CIDR блок для вашей подсети. Например: 192.168.1.0/24"
-  type        = string
-}
-
 variable "vm_count" {
   description = "Количество создаваемых VM. Например: 3"
   type        = number
@@ -42,6 +37,13 @@ variable "vm_memory" {
   description = "Объем памяти для каждой VM (в ГБ). Например: 2"
   type        = number
 }
+
+#Нужно раскомментировать для создания новой сети и подсети. Тоже самое сделать в main.tf
+
+#variable "v4_cidr_blocks" {
+#  description = "CIDR блок для вашей подсети. Например: 192.168.1.0/24"
+#  type        = string
+#}
 
 #variable "network_name" {
 #  description = "Имя сети. Например: network2"
