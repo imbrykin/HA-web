@@ -45,6 +45,18 @@ variable "vm_memory" {
 //  type        = string
 //}
 
+variable "v4_cidr_blocks" {
+  description = "CIDR блок для вашей подсети. Например: 192.168.1.0/24"
+  type        = string
+  default     = "" # Установите значение по умолчанию как пустую строку, если не хотите задавать это значение каждый раз.
+}
+
+variable "existing_subnet_id" {
+  description = "ID существующей подсети. Эту переменную следует задавать только в том случае, если будет использована существующая подсеть."
+  type        = string
+  default     = "" # Установите значение по умолчанию как пустую строку, если не хотите задавать это значение каждый раз.
+}
+
 variable "network_name" {
   description = "Имя сети. Например: network2"
   type        = string

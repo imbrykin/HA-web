@@ -13,38 +13,12 @@ provider "yandex" {
   zone      = var.zone
 }
 
-resource "yandex_vpc_network" "central-1-network" {
-  count = var.use_existing_network ? 0 : 1  // Создание сети происходит только если use_existing_network равно false
-  name  = var.network_name
-}
-
 resource "yandex_vpc_subnet" "subnet-2" {
+  count          = var.use_existing_network ? 0 : 1
   name           = var.subnet_name
   zone           = var.zone
   network_id     = var.use_existing_network ? var.existing_network_id : yandex_vpc_network.central-1-network[0].id
-//  v4_cidr_blocks = [var.v4_cidr_blocks]
-}
-
-resource "yandex_lb_network_load_balancer" "lb-1" {
-  name = var.lb_name
-  deletion_protection = false
-  listener {
-    name = "my-lb1"
-    port = 80
-    external_address_spec {
-      ip_version = "ipv4"
-    }
-  }
-  attached_target_group {
-    target_group_id = yandex_lb_target_group.testgroup1.id
-    healthcheck {
-      name = "http"
-      http_options {
-        port = 80
-        path = "/"
-      }
-    }
-  }
+  v4_cidr_blocks = var.use_existing_network ? [] : [var.v4_cidr_blocks]
 }
 
 resource "yandex_lb_target_group" "testgroup1" {
@@ -53,7 +27,7 @@ resource "yandex_lb_target_group" "testgroup1" {
   dynamic "target" {
     for_each = yandex_compute_instance.vm
     content {
-      subnet_id = yandex_vpc_subnet.subnet-2.id
+      subnet_id = var.use_existing_network ? var.existing_network_id : yandex_vpc_subnet.subnet-2[0].id
       address   = target.value.network_interface[0].ip_address
     }
   }
@@ -71,7 +45,7 @@ resource "yandex_compute_instance" "vm" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.subnet-2.id
+    subnet_id = var.use_existing_network ? var.existing_network_id : yandex_vpc_subnet.subnet-2[0].id
     nat       = false
   }
 
