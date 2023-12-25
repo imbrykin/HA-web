@@ -12,24 +12,7 @@
         data: "This is Nginx running on {{ ansible_default_ipv4.address }}"
         state: present
 
-    - name: Copy nginx configuration
-      docker_config:
-        name: nginx-conf
-        src: /home/user/nginx.conf
-        state: present
-
-    - name: Copy SSL certificate
-      docker_secret:
-        name: ssl-cert
-        src: /home/user/cert.pem
-        state: present
-
-    - name: Copy SSL key
-      docker_secret:
-        name: ssl-key
-        src: /home/user/key.pem
-        state: present
-
+    
     - name: Create nginx service in Docker Swarm
       command: >
         docker service create
