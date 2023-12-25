@@ -20,6 +20,8 @@
           - ca-certificates
           - curl
           - software-properties-common
+          - python3-pip  # Добавлено для установки pip
+          - python3-setuptools  # Может потребоваться для некоторых Python пакетов
         state: present
 
     - name: Add Docker GPG key
