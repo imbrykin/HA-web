@@ -77,7 +77,16 @@
   hosts: docker_swarm_workers
   become: yes
   tasks:
+    - name: Check if node is part of a Swarm
+      shell: docker info --format '{{ "{{" }}.Swarm.LocalNodeState{{ "}}" }}'
+      register: swarm_info_worker
+      ignore_errors: yes
+
+    - name: Leave current Swarm if already part of one
+      command: docker swarm leave --force
+      when: swarm_info_worker.stdout != 'inactive'
+
     - name: Join Swarm cluster
       command: docker swarm join --token {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_worker_token'] }} {{ groups['docker_swarm_manager'][0] }}:2377
-      when: hostvars[groups['docker_swarm_manager'][0]].swarm_worker_token is defined
+      when: swarm_info_worker.stdout == 'inactive' or swarm_info_worker.stdout == 'locked'
       ignore_errors: no
