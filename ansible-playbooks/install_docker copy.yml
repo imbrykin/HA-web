@@ -68,10 +68,10 @@
       when: swarm_result is changed
       register: worker_token
 
-- name: Store worker token
-  set_fact:
-    swarm_worker_token: "{{ worker_token.stdout }}"
-  when: worker_token is defined and worker_token.stdout is defined
+    - name: Store worker token
+      set_fact:
+        swarm_worker_token: "{{ worker_token.stdout }}"
+      when: worker_token is defined and worker_token.stdout is defined
 
 - name: Join Swarm as worker
   hosts: docker_swarm_workers
