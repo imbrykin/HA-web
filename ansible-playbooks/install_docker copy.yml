@@ -48,8 +48,18 @@
   hosts: docker_swarm_manager
   become: yes
   tasks:
+    - name: Check if node is part of a Swarm
+      command: docker info --format '{{.Swarm.LocalNodeState}}'
+      register: swarm_info
+      ignore_errors: yes
+
+    - name: Leave current Swarm if already part of one
+      command: docker swarm leave --force
+      when: swarm_info.stdout != 'inactive'
+
     - name: Initialize Swarm
       command: docker swarm init --advertise-addr {{ ansible_host }}
+      when: swarm_info.stdout == 'inactive'
       ignore_errors: no
       register: swarm_result
 
