@@ -57,6 +57,11 @@
       command: docker swarm leave --force
       when: swarm_info.stdout != 'inactive'
 
+    - name: Wait for a few seconds after leaving Swarm
+      pause:
+        seconds: 10
+      when: swarm_info.stdout != 'inactive'
+
     - name: Initialize Swarm
       command: docker swarm init --advertise-addr {{ ansible_host }}
       when: swarm_info.stdout == 'inactive'
@@ -65,8 +70,14 @@
 
     - name: Get Swarm join token for workers
       command: docker swarm join-token -q worker
+      when: swarm_result is changed
       register: worker_token
-      when: swarm_result is skipped or swarm_result is changed
+
+    - name: Store worker token
+      set_fact:
+        swarm_worker_token: "{{ worker_token.stdout }}"
+      when: worker_token is defined and worker_token.stdout is defined
+
 
     - name: Store worker token
       set_fact:
