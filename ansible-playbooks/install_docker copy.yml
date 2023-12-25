@@ -49,7 +49,7 @@
   become: yes
   tasks:
     - name: Check if node is part of a Swarm
-      command: docker info --format '{{.Swarm.LocalNodeState}}'
+      shell: docker info --format '{{ "{{" }}.Swarm.LocalNodeState{{ "}}" }}'
       register: swarm_info
       ignore_errors: yes
 
