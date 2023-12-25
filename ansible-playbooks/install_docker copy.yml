@@ -65,8 +65,8 @@
 
     - name: Get Swarm join token for workers
       command: docker swarm join-token -q worker
-      when: swarm_result is changed
       register: worker_token
+      when: swarm_result is skipped or swarm_result is changed
 
     - name: Store worker token
       set_fact:
@@ -78,5 +78,6 @@
   become: yes
   tasks:
     - name: Join Swarm cluster
-      command: docker swarm join --token {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_worker_token'] }} {{ hostvars[groups['docker_swarm_manager'][0]]['ansible_host'] }}:2377
+      command: docker swarm join --token {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_worker_token'] }} {{ groups['docker_swarm_manager'][0] }}:2377
+      when: hostvars[groups['docker_swarm_manager'][0]].swarm_worker_token is defined
       ignore_errors: no
