@@ -12,7 +12,6 @@
         data: "This is Nginx running on {{ ansible_default_ipv4.address }}"
         state: present
 
-    
     - name: Create nginx service in Docker Swarm
       command: >
         docker service create
