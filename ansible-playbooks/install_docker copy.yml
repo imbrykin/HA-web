@@ -20,8 +20,6 @@
           - ca-certificates
           - curl
           - software-properties-common
-          - python3-pip  # Добавлено для установки pip
-          - python3-setuptools  # Может потребоваться для некоторых Python пакетов
         state: present
 
     - name: Add Docker GPG key
@@ -40,31 +38,12 @@
         update_cache: yes
         state: present
 
-    - name: Install Docker SDK for Python
-      pip:
-        name: docker
-
 - name: Initialize Docker Swarm
   hosts: docker_swarm_manager
   become: yes
   tasks:
-    - name: Check if node is part of a Swarm
-      shell: docker info --format '{{ "{{" }}.Swarm.LocalNodeState{{ "}}" }}'
-      register: swarm_info
-      ignore_errors: yes
-
-    - name: Leave current Swarm if already part of one
-      command: docker swarm leave --force
-      when: swarm_info.stdout != 'inactive'
-
-    - name: Wait for a few seconds after leaving Swarm
-      pause:
-        seconds: 10
-      when: swarm_info.stdout != 'inactive'
-
     - name: Initialize Swarm
       command: docker swarm init --advertise-addr {{ ansible_host }}
-      when: swarm_info.stdout == 'inactive'
       ignore_errors: no
       register: swarm_result
 
@@ -76,28 +55,11 @@
     - name: Store worker token
       set_fact:
         swarm_worker_token: "{{ worker_token.stdout }}"
-      when: worker_token is defined and worker_token.stdout is defined
-
-
-    - name: Store worker token
-      set_fact:
-        swarm_worker_token: "{{ worker_token.stdout }}"
-      when: worker_token is defined and worker_token.stdout is defined
 
 - name: Join Swarm as worker
   hosts: docker_swarm_workers
   become: yes
   tasks:
-    - name: Check if node is part of a Swarm
-      shell: docker info --format '{{ "{{" }}.Swarm.LocalNodeState{{ "}}" }}'
-      register: swarm_info_worker
-      ignore_errors: yes
-
-    - name: Leave current Swarm if already part of one
-      command: docker swarm leave --force
-      when: swarm_info_worker.stdout != 'inactive'
-
     - name: Join Swarm cluster
-      command: docker swarm join --token {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_worker_token'] }} {{ groups['docker_swarm_manager'][0] }}:2377
-      when: swarm_info_worker.stdout == 'inactive' or swarm_info_worker.stdout == 'locked'
+      command: docker swarm join --token {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_worker_token'] }} {{ hostvars[groups['docker_swarm_manager'][0]]['inventory_hostname'] }}:2377
       ignore_errors: no
