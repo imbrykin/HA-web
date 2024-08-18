@@ -68,7 +68,7 @@ variable "lb_name" {
 
 variable "target_group_name" {
   description = "Name of the target group for the load balancerа. Example: hanginx1"
-  default     = "web-servers-target-group"
+  default     = "web-servers"
   type        = string
 }
 

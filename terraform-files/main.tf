@@ -16,11 +16,18 @@ resource "yandex_vpc_network" "central-1-network" {
   name = var.network_name
 }
 
-resource "yandex_vpc_subnet" "subnet" {
-  name           = var.subnet_name
+resource "yandex_vpc_subnet" "subnet_a" {
+  name           = "subnet-a"
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.central-1-network.id
-  v4_cidr_blocks = [var.v4_cidr_blocks]
+  v4_cidr_blocks = ["10.0.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "subnet_b" {
+  name           = "subnet-b"
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.central-1-network.id
+  v4_cidr_blocks = ["10.0.1.0/24"]
 }
 
 resource "yandex_compute_instance" "bastion" {
@@ -61,7 +68,7 @@ resource "yandex_compute_instance" "bastion" {
 resource "yandex_compute_instance" "web" {
   count     = length(var.vm_zones)
   name      = "web${count.index + 1}"
-  zone      = var.vm_zones[count.index]
+  zone      = element(["ru-central1-a", "ru-central1-b"], count.index)
   hostname  = "web${count.index + 1}.ru-central1-${element(["a", "b"], count.index)}.internal"
 
   boot_disk {
@@ -72,7 +79,7 @@ resource "yandex_compute_instance" "web" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.subnet.id
+    subnet_id = element([yandex_vpc_subnet.subnet_a.id, yandex_vpc_subnet.subnet_b.id], count.index)
     nat       = false
   }
 
@@ -100,7 +107,7 @@ resource "yandex_lb_target_group" "web-servers" {
   dynamic "target" {
     for_each = yandex_compute_instance.web
     content {
-      subnet_id = yandex_vpc_subnet.subnet.id
+      subnet_id = yandex_vpc_subnet.subnet_a.id
       address   = target.value.network_interface[0].ip_address
     }
   }
@@ -145,7 +152,7 @@ resource "yandex_alb_virtual_host" "virtual-host" {
     name = "default-route"
     http_route {
       http_route_action {
-        backend_group_id = "backend-group"
+        backend_group_id = yandex_lb_target_group.web_servers.id
         timeout          = "60s"
       }
     }
@@ -168,7 +175,7 @@ resource "yandex_compute_snapshot_schedule" "web_daily_snapshot" {
 
 resource "yandex_compute_snapshot_schedule" "bastion_daily_snapshot" {
   name       = "daily-snapshot_bastion"
-  disk_ids   = [yandex_compute_instance.bastion.boot_disk[0].disk_id]  # Accessing single instance
+  disk_ids   = [for disk in yandex_compute_instance.bastion : disk.boot_disk[0].disk_id]  # Accessing single instance
   snapshot_count = 7
 
   schedule_policy {
