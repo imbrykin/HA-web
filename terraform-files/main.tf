@@ -163,7 +163,7 @@ resource "yandex_compute_snapshot_schedule" "daily_snapshot" {
   retention_policy {
     snapshot_count = 7
   }
-  
+}  
 resource "yandex_compute_snapshot_schedule" "daily_snapshot" {
   name       = "daily-snapshot_bastion"
   disk_ids   = [for disk in yandex_compute_instance.bastion: disk.boot_disk.0.disk_id]
