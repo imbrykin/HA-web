@@ -45,27 +45,24 @@ variable "vm_memory" {
   type        = number
 }
 
-variable "v4_cidr_blocks" {
-  description = "CIDR block for your subnet. Example: 192.168.1.0/24"
-  default     = "10.0.0.0/24"
-  type        = string
-}
-
 variable "network_name" {
-  description = "Network name. Example: network2"
-  default     = "ru-network"
-  type        = string
+  description = "Name of the network"
+  default     = "central-1-network"
 }
 
 variable "subnet_name" {
-  description = "Subnet name. Example: subnet2"
-  default     = "ru-subnet"
-  type        = string
+  description = "Name of the subnet"
+  default     = "subnet"
+}
+
+variable "v4_cidr_blocks" {
+  description = "CIDR blocks for the subnet"
+  default     = "10.0.0.0/24"
 }
 
 variable "lb_name" {
   description = "Name of network balancer. Example: lb-1"
-  default     = "ru-lb"
+  default     = "my-load-balancer"
   type        = string
 }
 
@@ -93,4 +90,19 @@ variable "bastion_disk_size" {
 variable "bastion_zone" {
   description = "Zone where bastion will be deployed"
   default     = "ru-central1-a"
+}
+
+variable "vm_zones" {
+  description = "Zones for VMs"
+  default     = ["ru-central1-a", "ru-central1-b"]
+}
+
+variable "ssh_public_key" {
+  description = "Public SSH key to access the VMs"
+  default     = "~/.ssh/id_rsa.pub"
+}
+
+variable "user_password" {
+  description = "User password for KVM access"
+  default     = "12345"
 }

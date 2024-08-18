@@ -15,7 +15,7 @@
 
     - name: Copy static website files
       copy:
-        src: /home/user/
+        src: /path/to/your/static/files/
         dest: /var/www/html/
         owner: www-data
         group: www-data
