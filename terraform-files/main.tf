@@ -144,6 +144,7 @@ resource "yandex_alb_http_router" "my_router" {
 }
 
 resource "yandex_alb_backend_group" "web_backend_group" {
+  depends_on = [yandex_lb_target_group.web_servers]
   name = "web-backend-group"
 
   http_backend {
