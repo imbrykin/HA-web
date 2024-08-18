@@ -158,7 +158,15 @@ resource "yandex_alb_virtual_host" "virtual-host" {
 
 resource "yandex_compute_snapshot_schedule" "daily_snapshot" {
   name       = "daily-snapshot"
-  disk_ids   = [for disk in yandex_compute_instance.vm : disk.boot_disk.0.disk_id]
+  disk_ids   = [for disk in yandex_compute_instance.web : disk.boot_disk.0.disk_id]
+  schedule   = "0 3 * * *"
+  retention_policy {
+    snapshot_count = 7
+  }
+  
+resource "yandex_compute_snapshot_schedule" "daily_snapshot" {
+  name       = "daily-snapshot_bastion"
+  disk_ids   = [for disk in yandex_compute_instance.bastion: disk.boot_disk.0.disk_id]
   schedule   = "0 3 * * *"
   retention_policy {
     snapshot_count = 7
