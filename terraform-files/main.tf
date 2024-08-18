@@ -158,19 +158,19 @@ resource "yandex_alb_virtual_host" "virtual-host" {
 
 resource "yandex_compute_snapshot_schedule" "web_daily_snapshot" {
   name       = "daily-snapshot-web"
-  disk_ids   = [for disk in yandex_compute_instance.web : disk.boot_disk.0.disk_id]
+  disk_ids   = [for disk in yandex_compute_instance.web : disk.boot_disk[0].disk_id]  # Corrected access to disk_id
   snapshot_count = 7
 
   schedule_policy {
     expression = "0 3 * * *"
   }
 }  
+
 resource "yandex_compute_snapshot_schedule" "bastion_daily_snapshot" {
   name       = "daily-snapshot_bastion"
-  disk_ids   = [for disk in yandex_compute_instance.bastion: disk.boot_disk.0.disk_id]
+  disk_ids   = [yandex_compute_instance.bastion.boot_disk[0].disk_id]  # Accessing single instance
   snapshot_count = 7
 
   schedule_policy {
     expression = "0 3 * * *"
   }
-}
