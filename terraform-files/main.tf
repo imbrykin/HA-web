@@ -201,11 +201,11 @@ resource "yandex_compute_snapshot_schedule" "web_daily_snapshot" {
 }  
 
 resource "yandex_compute_snapshot_schedule" "bastion_daily_snapshot" {
-  name       = "daily-snapshot_bastion"
-  disk_ids   = [for disk in yandex_compute_instance.bastion : disk.boot_disk[0].disk_id]  # Accessing single instance
-  snapshot_count = 7
+  name        = "bastion-daily-snapshot"
+  description = "Daily snapshot for bastion instance"
+  schedule    = "0 3 * * *"
 
-  schedule_policy {
-    expression = "0 3 * * *"
-  }
+  disk_ids = [yandex_compute_instance.bastion.boot_disk[0].disk_id]
+  
+  snapshot_count = 7
 }
