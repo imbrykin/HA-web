@@ -147,21 +147,23 @@ resource "yandex_alb_backend_group" "web_backend_group" {
   name = "web-backend-group"
 
   http_backend {
-    name = "web-backend"
+    name   = "web-backend"
+    port   = 80
+    target_group_ids = [yandex_lb_target_group.web_servers.id]
+    weight = 1
 
-    backend {
-      name = "web-backend-instance"
-      weight = 1
-
-      healthcheck {
-        http {
-          path = "/healthz"
-        }
+    healthcheck {
+      http {
+        path = "/healthz"
       }
+      interval            = "2s"
+      timeout             = "10s"
+      healthy_threshold   = 3
+      unhealthy_threshold = 3
+    }
 
-      target {
-        target_group_id = yandex_lb_target_group.web_servers.id
-      }
+    load_balancing_config {
+      panic_threshold = 90
     }
   }
 }
