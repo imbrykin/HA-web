@@ -128,7 +128,7 @@ resource "yandex_lb_network_load_balancer" "lb" {
   }
 
   attached_target_group {
-    target_group_id = yandex_lb_target_group.web-servers.id
+    target_group_id = yandex_lb_target_group.web_servers.id
     healthcheck {
       name = "http"
       http_options {
@@ -139,12 +139,8 @@ resource "yandex_lb_network_load_balancer" "lb" {
   }
 }
 
-resource "yandex_alb_http_router" "tf-router" {
-  name = "http-router"
-  labels = {
-    tf-label    = "tf-label-value"
-    empty-label = ""
-  }
+resource "yandex_alb_http_router" "my_router" {
+  name = "my-router"
 }
 
 resource "yandex_alb_virtual_host" "virtual-host" {
