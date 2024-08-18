@@ -245,28 +245,6 @@ resource "yandex_alb_virtual_host" "virtual_host" {
   }
 }
 
-
-resource "yandex_alb_virtual_host" "virtual_host" {
-  name          = "my-virtual-host"
-  http_router_id = yandex_alb_http_router.my_router.id
-
-  route {
-    name = "default-route"
-
-    http_route {
-      http_match {
-        path {
-          exact = "/"
-        }
-      }
-
-      http_route_action {
-        backend_group_id = yandex_alb_backend_group.web_backend_group.id
-      }
-    }
-  }
-}
-
 resource "yandex_compute_snapshot_schedule" "web_daily_snapshot" {
   name       = "daily-snapshot-web"
   disk_ids   = [for disk in yandex_compute_instance.web : disk.boot_disk[0].disk_id]  # Corrected access to disk_id
