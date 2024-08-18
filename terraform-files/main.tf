@@ -160,6 +160,27 @@ resource "yandex_alb_http_router" "my_router" {
   name = "my-router"
 }
 
+resource "null_resource" "wait_for_target_group" {
+  provisioner "local-exec" {
+    command = <<EOT
+      while true; do
+        if yc load-balancer target-group get --id ${yandex_lb_target_group.web_servers_a.id} > /dev/null 2>&1; then
+          echo "Target group is available. Waiting additional 60 seconds..."
+          sleep 60
+          break
+        fi
+        echo "Waiting for target group to be fully available..."
+        sleep 10
+      done
+    EOT
+  }
+
+  triggers = {
+    target_group_id = yandex_lb_target_group.web_servers_a.id
+  }
+}
+
+
 resource "yandex_alb_backend_group" "web_backend_group" {
   depends_on = [null_resource.wait_for_target_group]
 
@@ -168,7 +189,10 @@ resource "yandex_alb_backend_group" "web_backend_group" {
   http_backend {
     name   = "web-backend"
     port   = 80
-    target_group_ids = [yandex_lb_target_group.web_servers.id]
+    target_group_ids = [
+      yandex_lb_target_group.web_servers_a.id,
+      yandex_lb_target_group.web_servers_b.id
+    ]
     weight = 1
 
     healthcheck {
@@ -187,6 +211,7 @@ resource "yandex_alb_backend_group" "web_backend_group" {
     }
   }
 }
+
 
 resource "yandex_alb_virtual_host" "virtual_host" {
   name          = "my-virtual-host"
