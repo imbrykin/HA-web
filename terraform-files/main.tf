@@ -102,16 +102,23 @@ resource "yandex_compute_instance" "web" {
   }
 }
 
-resource "yandex_lb_target_group" "web_servers" {
-  name      = "web-target-group"
+resource "yandex_lb_target_group" "web_servers_a" {
+  name      = "web-target-group-a"
   region_id = "ru-central1"
 
-  dynamic "target" {
-    for_each = yandex_compute_instance.web[*]
-    content {
-      subnet_id = element([yandex_vpc_subnet.subnet_a.id, yandex_vpc_subnet.subnet_b.id], index(yandex_compute_instance.web[*], target.value))
-      address   = target.value.network_interface[0].ip_address
-    }
+  target {
+    subnet_id = yandex_vpc_subnet.subnet_a.id
+    address   = yandex_compute_instance.web[0].network_interface[0].ip_address
+  }
+}
+
+resource "yandex_lb_target_group" "web_servers_b" {
+  name      = "web-target-group-b"
+  region_id = "ru-central1"
+
+  target {
+    subnet_id = yandex_vpc_subnet.subnet_b.id
+    address   = yandex_compute_instance.web[1].network_interface[0].ip_address
   }
 }
 
@@ -127,7 +134,18 @@ resource "yandex_lb_network_load_balancer" "lb" {
   }
 
   attached_target_group {
-    target_group_id = yandex_lb_target_group.web_servers.id
+    target_group_id = yandex_lb_target_group.web_servers_a.id
+    healthcheck {
+      name = "http"
+      http_options {
+        port = 80
+        path = "/"
+      }
+    }
+  }
+
+  attached_target_group {
+    target_group_id = yandex_lb_target_group.web_servers_b.id
     healthcheck {
       name = "http"
       http_options {
