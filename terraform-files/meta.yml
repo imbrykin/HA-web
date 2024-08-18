@@ -1,8 +1,9 @@
+# meta.yml
 #cloud-config
-hostname: "vm${index}"
+hostname: "${hostname}"
 users:
  - name: user
-   passwd: "${var.user_password}"
+   passwd: "${password}"
    groups: sudo
    shell: /bin/bash
    sudo: ['ALL=(ALL) NOPASSWD:ALL']

@@ -47,6 +47,10 @@ resource "yandex_compute_instance" "bastion" {
 
   metadata = {
     ssh-keys = "root:${file("/root/.ssh/id_rsa.pub")}"
+    user-data = templatefile("./meta.yml", {
+      hostname = var.bastion_name,
+      password = var.user_password
+    })
   }
 
   lifecycle {
@@ -80,6 +84,7 @@ resource "yandex_compute_instance" "web" {
   metadata = {
     ssh-keys = "root:${file("/root/.ssh/id_rsa.pub")}"
     user-data = templatefile("./meta.yml", {
+      hostname = "web${count.index + 1}",
       password = var.user_password
     })
   }
@@ -124,7 +129,7 @@ resource "yandex_lb_network_load_balancer" "lb" {
   }
 }
 
-resource "yandex_lb_http_router" "http_router" {
+resource "yandex_alb_http_router" "http_router" {
   name           = "http-router"
   load_balancer_id = yandex_lb_network_load_balancer.lb.id
   route {
