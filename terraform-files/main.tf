@@ -143,8 +143,19 @@ resource "yandex_alb_http_router" "my_router" {
   name = "my-router"
 }
 
+resource "null_resource" "wait_for_target_group" {
+  provisioner "local-exec" {
+    command = "sleep 60"
+  }
+
+  triggers = {
+    target_group_id = yandex_lb_target_group.web_servers.id
+  }
+}
+
 resource "yandex_alb_backend_group" "web_backend_group" {
-  depends_on = [yandex_lb_target_group.web_servers]
+  depends_on = [null_resource.wait_for_target_group]
+
   name = "web-backend-group"
 
   http_backend {
