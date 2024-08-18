@@ -27,6 +27,7 @@ resource "yandex_vpc_subnet" "subnet-2" {
 resource "yandex_lb_network_load_balancer" "lb-1" {
   name = var.lb_name
   deletion_protection = false
+  
   listener {
     name = "my-lb1"
     port = 80
@@ -63,6 +64,8 @@ resource "yandex_compute_instance" "vm" {
   name  = "vm${count.index}"
   hostname = "example${count.index}.ru-central1-${element(["a", "b", "c"], count.index)}.internal"
 
+  zone = element(["ru-central1-a", "ru-central1-b", "ru-central1-c"], count.index)
+
   boot_disk {
     initialize_params {
       image_id = var.image_id
@@ -82,5 +85,18 @@ resource "yandex_compute_instance" "vm" {
 
   metadata = {
     user-data = templatefile("./meta.yml", { index = count.index })
+  }
+  
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "yandex_compute_snapshot_schedule" "daily_snapshot" {
+  name       = "daily-snapshot"
+  disk_ids   = [for disk in yandex_compute_instance.vm : disk.boot_disk.0.disk_id]
+  schedule   = "0 3 * * *"
+  retention_policy {
+    snapshot_count = 7
   }
 }
