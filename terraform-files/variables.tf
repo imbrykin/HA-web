@@ -17,7 +17,7 @@ variable "zone" {
 
 variable "vm_count" {
   description = "Number of VMs. Example: 3"
-  default     = 3
+  default     = 2
   type        = number
 }
 
@@ -71,7 +71,7 @@ variable "lb_name" {
 
 variable "target_group_name" {
   description = "Name of the target group for the load balancerа. Example: hanginx1"
-  default     = "ha-nginx"
+  default     = "web-servers-target-group"
   type        = string
 }
 

@@ -1,0 +1,29 @@
+- hosts: webservers
+  become: yes
+  tasks:
+    - name: Ensure Nginx is installed
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Start and enable Nginx service
+      systemd:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Copy static website files
+      copy:
+        src: /home/user/
+        dest: /var/www/html/
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Ensure the proper permissions are set for /var/www/html
+      file:
+        path: /var/www/html
+        owner: www-data
+        group: www-data
+        mode: '0755'
