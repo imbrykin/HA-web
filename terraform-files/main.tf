@@ -174,3 +174,4 @@ resource "yandex_compute_snapshot_schedule" "bastion_daily_snapshot" {
   schedule_policy {
     expression = "0 3 * * *"
   }
+}
