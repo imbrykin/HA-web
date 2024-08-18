@@ -43,7 +43,8 @@ resource "yandex_compute_instance" "bastion" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.subnet.id
+    # Assigning to a subnet based on the zone
+    subnet_id = var.bastion_zone == "ru-central1-a" ? yandex_vpc_subnet.subnet_a.id : yandex_vpc_subnet.subnet_b.id
     nat       = true
   }
 
@@ -68,7 +69,7 @@ resource "yandex_compute_instance" "bastion" {
 resource "yandex_compute_instance" "web" {
   count     = length(var.vm_zones)
   name      = "web${count.index + 1}"
-  zone      = element(["ru-central1-a", "ru-central1-b"], count.index)
+  zone      = element(var.vm_zones, count.index)
   hostname  = "web${count.index + 1}.ru-central1-${element(["a", "b"], count.index)}.internal"
 
   boot_disk {
@@ -101,17 +102,19 @@ resource "yandex_compute_instance" "web" {
   }
 }
 
-resource "yandex_lb_target_group" "web-servers" {
-  name = var.target_group_name
+resource "yandex_lb_target_group" "web_servers" {
+  name      = "web-target-group"
+  region_id = "ru-central1"
 
   dynamic "target" {
-    for_each = yandex_compute_instance.web
+    for_each = yandex_compute_instance.web[*]
     content {
-      subnet_id = yandex_vpc_subnet.subnet_a.id
+      subnet_id = element([yandex_vpc_subnet.subnet_a.id, yandex_vpc_subnet.subnet_b.id], index(yandex_compute_instance.web[*], target.value))
       address   = target.value.network_interface[0].ip_address
     }
   }
 }
+
 
 resource "yandex_lb_network_load_balancer" "lb" {
   name               = var.lb_name
@@ -145,21 +148,12 @@ resource "yandex_alb_http_router" "tf-router" {
 }
 
 resource "yandex_alb_virtual_host" "virtual-host" {
-  name           = "virtual-hosts"
-  http_router_id = yandex_alb_http_router.tf-router.id
+  name            = "my-virtual-host"
+  http_router_id  = yandex_alb_http_router.my_router.id
+  route_options   = null
 
-  route {
-    name = "default-route"
-    http_route {
-      http_route_action {
-        backend_group_id = yandex_lb_target_group.web_servers.id
-        timeout          = "60s"
-      }
-    }
-  }
-
-  route_options {
-    security_profile_id = "security-profile"
+  http_router {
+    backend_group_id = yandex_lb_target_group.web_servers.id
   }
 }
 
