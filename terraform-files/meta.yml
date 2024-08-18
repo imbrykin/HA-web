@@ -2,6 +2,7 @@
 hostname: "vm${index}"
 users:
  - name: user
+   passwd: "${var.user_password}"
    groups: sudo
    shell: /bin/bash
    sudo: ['ALL=(ALL) NOPASSWD:ALL']

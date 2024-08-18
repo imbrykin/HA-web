@@ -104,5 +104,5 @@ variable "ssh_public_key" {
 
 variable "user_password" {
   description = "User password for KVM access"
-  default     = "12345"
+  type        = string
 }
