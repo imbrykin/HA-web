@@ -61,6 +61,7 @@ resource "yandex_lb_target_group" "testgroup1" {
 resource "yandex_compute_instance" "vm" {
   count = var.vm_count
   name  = "vm${count.index}"
+  hostname = "example${count.index}.ru-central1-${element(["a", "b", "c"], count.index)}.internal"
 
   boot_disk {
     initialize_params {

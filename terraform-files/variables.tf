@@ -1,6 +1,6 @@
 variable "cloud_id" {
-  description = "ID вашего облака в Yandex.Cloud. Например: b1g2445ompelboq61fkg"
-  type        = string
+  description = "Yandex Cloud ID"
+  default     = "b1g2445ompelboq61fkg"
 }
 
 variable "folder_id" {
@@ -19,7 +19,7 @@ variable "vm_count" {
 }
 
 variable "image_id" {
-  description = "ID образа для VM. Например (Debian в YC): fd8s17cfki4sd4l6oa59"
+  description = "ID образа для VM. Например (Centos в YC): fd8u8nticc6r76lvj1jo"
   type        = string
 }
 
@@ -61,4 +61,24 @@ variable "lb_name" {
 variable "target_group_name" {
   description = "Имя target group для сетевого балансировщика нагрузки. Например: hanginx1"
   type        = string
+}
+
+variable "bastion_name" {
+  description = "Name of the bastion host"
+  default     = "bastion"
+}
+
+variable "bastion_image_id" {
+  description = "Image ID for the bastion host"
+  default     = "fd8u8nticc6r76lvj1jo"
+}
+
+variable "bastion_disk_size" {
+  description = "Disk size for the bastion host in GB"
+  default     = 10
+}
+
+variable "bastion_zone" {
+  description = "Zone where bastion will be deployed"
+  default     = "ru-central1-a"
 }
