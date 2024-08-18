@@ -103,6 +103,7 @@ variable "ssh_public_key" {
 }
 
 variable "user_password" {
-  description = "User password for KVM access"
+  description = "Password for the user"
   type        = string
+  sensitive   = true
 }
