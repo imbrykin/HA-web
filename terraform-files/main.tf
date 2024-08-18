@@ -161,13 +161,33 @@ resource "yandex_alb_http_router" "my_router" {
 }
 
 resource "yandex_alb_load_balancer" "alb" {
-  name = "my-alb"
-  region_id = "ru-central1"
+  name        = var.lb_name
+  network_id  = yandex_vpc_network.central-1-network.id
+
+  allocation_policy {
+    location {
+      zone_id   = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.subnet_a.id
+    }
+    location {
+      zone_id   = "ru-central1-b"
+      subnet_id = yandex_vpc_subnet.subnet_b.id
+    }
+  }
+
   listener {
     name = "http-listener"
-    port = 80
+    endpoint {
+      address {
+        external_ipv4_address {
+        }
+      }
+      ports = [ 80 ]
+    }
     http {
-      router_id = yandex_alb_http_router.my_router.id
+      handler {
+        http_router_id = yandex_alb_http_router.my_router.id
+      }
     }
   }
 }
