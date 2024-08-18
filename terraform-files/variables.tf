@@ -4,62 +4,74 @@ variable "cloud_id" {
 }
 
 variable "folder_id" {
-  description = "ID папки в Yandex.Cloud. Например: b1g43omr5aea4kut7i6f"
+  description = "Folder ID in Yandex.Cloud. Example: b1g43omr5aea4kut7i6f"
+  default     = "b1gfoungdr8tuo6k9lhp"
   type        = string
 }
 
 variable "zone" {
-  description = "Зона доступности. Например: ru-central1-a или ru-central1-b или ru-central1-c"
+  description = "Zone. Example: ru-central1-a or ru-central1-b or ru-central1-d"
+  default     = "ru-central1-a"
   type        = string
 }
 
 variable "vm_count" {
-  description = "Количество создаваемых VM. Например: 3"
+  description = "Number of VMs. Example: 3"
+  default     = 3
   type        = number
 }
 
 variable "image_id" {
-  description = "ID образа для VM. Например (Centos в YC): fd8u8nticc6r76lvj1jo"
+  description = "ISO ID for VM. Example (Centos in YC): fd8u8nticc6r76lvj1jo"
+  default     = "fd8u8nticc6r76lvj1jo"
   type        = string
 }
 
 variable "disk_size" {
-  description = "Размер диска для VM (в ГБ). Например: 10"
+  description = "Disk size for VM (в ГБ). Example: 10"
+  default     = 20
   type        = number
 }
 
 variable "vm_cores" {
-  description = "Количество ядер для каждой VM. Например: 2"
+  description = "Number of CPU cores for each VM. Example: 2"
+  default     = 2
   type        = number
 }
 
 variable "vm_memory" {
-  description = "Объем памяти для каждой VM (в ГБ). Например: 2"
+  description = "Total memory for each VM (GB). Example: 2"
+  default     = 4
   type        = number
 }
 
 variable "v4_cidr_blocks" {
-  description = "CIDR блок для вашей подсети. Например: 192.168.1.0/24"
+  description = "CIDR block for your subnet. Example: 192.168.1.0/24"
+  default     = "10.0.0.0/24"
   type        = string
 }
 
 variable "network_name" {
-  description = "Имя сети. Например: network2"
+  description = "Network name. Example: network2"
+  default     = "ru-network"
   type        = string
 }
 
 variable "subnet_name" {
-  description = "Имя подсети. Например: subnet2"
+  description = "Subnet name. Example: subnet2"
+  default     = "ru-subnet"
   type        = string
 }
 
 variable "lb_name" {
-  description = "Имя сетевого балансировщика. Например: lb-1"
+  description = "Name of network balancer. Example: lb-1"
+  default     = "ru-lb"
   type        = string
 }
 
 variable "target_group_name" {
-  description = "Имя target group для сетевого балансировщика нагрузки. Например: hanginx1"
+  description = "Name of the target group for the load balancerа. Example: hanginx1"
+  default     = "ha-nginx"
   type        = string
 }
 
