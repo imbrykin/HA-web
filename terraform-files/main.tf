@@ -129,15 +129,30 @@ resource "yandex_lb_network_load_balancer" "lb" {
   }
 }
 
-resource "yandex_alb_http_router" "http_router" {
-  name           = "http-router"
-  load_balancer_id = yandex_lb_network_load_balancer.lb.id
+resource "yandex_alb_http_router" "tf-router" {
+  name = "http-router"
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+}
+
+resource "yandex_alb_virtual_host" "virtual-host" {
+  name           = "virtual-hosts"
+  http_router_id = yandex_alb_http_router.tf-router.id
+
   route {
-    http {
-      name        = "default"
-      http_router = "http-router"
-      backend_group_id = yandex_lb_target_group.web-servers.id
+    name = "default-route"
+    http_route {
+      http_route_action {
+        backend_group_id = "backend-group"
+        timeout          = "60s"
+      }
     }
+  }
+
+  route_options {
+    security_profile_id = "security-profile"
   }
 }
 
