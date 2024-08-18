@@ -143,6 +143,29 @@ resource "yandex_alb_http_router" "my_router" {
   name = "my-router"
 }
 
+resource "yandex_alb_backend_group" "web_backend_group" {
+  name = "web-backend-group"
+
+  http_backend {
+    name = "web-backend"
+
+    backend {
+      name = "web-backend-instance"
+      weight = 1
+
+      healthcheck {
+        http {
+          path = "/healthz"
+        }
+      }
+
+      target {
+        target_group_id = yandex_lb_target_group.web_servers.id
+      }
+    }
+  }
+}
+
 resource "yandex_alb_virtual_host" "virtual_host" {
   name          = "my-virtual-host"
   http_router_id = yandex_alb_http_router.my_router.id
