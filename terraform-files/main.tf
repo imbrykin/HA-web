@@ -153,13 +153,14 @@ resource "yandex_alb_backend_group" "web_backend_group" {
     weight = 1
 
     healthcheck {
-      http {
-        path = "/healthz"
-      }
-      interval            = "2s"
       timeout             = "10s"
+      interval            = "2s"
       healthy_threshold   = 3
       unhealthy_threshold = 3
+
+      http_healthcheck {
+        path = "/healthz"
+      }
     }
 
     load_balancing_config {
