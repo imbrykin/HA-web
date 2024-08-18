@@ -160,6 +160,18 @@ resource "yandex_alb_http_router" "my_router" {
   name = "my-router"
 }
 
+resource "yandex_alb_load_balancer" "alb" {
+  name = "my-alb"
+  region_id = "ru-central1"
+  listener {
+    name = "http-listener"
+    port = 80
+    http {
+      router_id = yandex_alb_http_router.my_router.id
+    }
+  }
+}
+
 resource "null_resource" "wait_for_target_group" {
   provisioner "local-exec" {
     command = <<EOT
@@ -187,8 +199,8 @@ resource "yandex_alb_backend_group" "web_backend_group" {
   name = "web-backend-group"
 
   http_backend {
-    name   = "web-backend"
-    port   = 80
+    name = "web-backend"
+    port = 80
     target_group_ids = [
       yandex_lb_target_group.web_servers_a.id,
       yandex_lb_target_group.web_servers_b.id
@@ -208,6 +220,27 @@ resource "yandex_alb_backend_group" "web_backend_group" {
 
     load_balancing_config {
       panic_threshold = 90
+    }
+  }
+}
+
+resource "yandex_alb_virtual_host" "virtual_host" {
+  name          = "my-virtual-host"
+  http_router_id = yandex_alb_http_router.my_router.id
+
+  route {
+    name = "default-route"
+
+    http_route {
+      http_match {
+        path {
+          exact = "/"
+        }
+      }
+
+      http_route_action {
+        backend_group_id = yandex_alb_backend_group.web_backend_group.id
+      }
     }
   }
 }
