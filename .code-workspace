@@ -1,0 +1,15 @@
+{
+    "folders": [
+        {
+            "path": "/mnt/c/Users/bryki/OneDrive/Documents/GitHub/HA-web"
+        }
+    ],
+    "settings": {
+        "python.pythonPath": "/usr/bin/python3",
+        "editor.tabSize": 4,
+        "files.exclude": {
+            "**/__pycache__": true,
+            "**/*.pyc": true
+        }
+    }
+}
