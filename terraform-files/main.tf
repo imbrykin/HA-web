@@ -143,13 +143,24 @@ resource "yandex_alb_http_router" "my_router" {
   name = "my-router"
 }
 
-resource "yandex_alb_virtual_host" "virtual-host" {
-  name            = "my-virtual-host"
-  http_router_id  = yandex_alb_http_router.my_router.id
-  route_options   = null
+resource "yandex_alb_virtual_host" "virtual_host" {
+  name          = "my-virtual-host"
+  http_router_id = yandex_alb_http_router.my_router.id
 
-  http_router {
-    backend_group_id = yandex_lb_target_group.web_servers.id
+  route {
+    name = "default-route"
+
+    http_route {
+      http_match {
+        path {
+          exact = "/"
+        }
+      }
+
+      http_route_action {
+        backend_group_id = yandex_alb_backend_group.web_backend_group.id
+      }
+    }
   }
 }
 
