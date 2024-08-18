@@ -160,24 +160,6 @@ resource "yandex_alb_http_router" "my_router" {
   name = "my-router"
 }
 
-resource "null_resource" "wait_for_target_group" {
-  provisioner "local-exec" {
-    command = <<EOT
-      while true; do
-        if yc load-balancer target-group get --id ${yandex_lb_target_group.web_servers.id} > /dev/null 2>&1; then
-          break
-        fi
-        sleep 10
-      done
-    EOT
-  }
-
-  triggers = {
-    target_group_id = yandex_lb_target_group.web_servers.id
-  }
-}
-
-
 resource "yandex_alb_backend_group" "web_backend_group" {
   depends_on = [null_resource.wait_for_target_group]
 
