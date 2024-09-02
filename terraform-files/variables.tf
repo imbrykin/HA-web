@@ -1,109 +1,115 @@
 variable "cloud_id" {
-  description = "Yandex Cloud ID"
-  default     = "b1g2445ompelboq61fkg"
+  description = "ID of the cloud."
+  default     = "b1gaiq9iahfd9gh90fdp"
 }
 
-variable "folder_id" {
-  description = "Folder ID in Yandex.Cloud. Example: b1g43omr5aea4kut7i6f"
-  default     = "b1gfoungdr8tuo6k9lhp"
-  type        = string
+variable "folder_net" {
+  description = "ID of the folder for networks."
+  default     = "b1g8j75i8n1a1rgl367g"
 }
 
-variable "zone" {
-  description = "Zone. Example: ru-central1-a or ru-central1-b or ru-central1-d"
-  default     = "ru-central1-a"
-  type        = string
+variable "folder_nginx" {
+  description = "ID of the folder for nginx."
+  default     = "b1gpio1c0rklprhlris9"
 }
 
-variable "vm_count" {
-  description = "Number of VMs. Example: 3"
-  default     = 2
-  type        = number
+variable "folder_zabbix" {
+  description = "ID of the folder for zabbix."
+  default     = "b1ggg1qhfnh117p1tse7"
 }
 
-variable "image_id" {
-  description = "ISO ID for VM. Example (Centos in YC): fd8u8nticc6r76lvj1jo"
-  default     = "fd8u8nticc6r76lvj1jo"
-  type        = string
+variable "folder_elk" {
+  description = "ID of the folder for elk."
+  default     = "b1gjrmll0on5ut4uha4v"
 }
 
-variable "disk_size" {
-  description = "Disk size for VM (в ГБ). Example: 10"
-  default     = 20
-  type        = number
+variable "folder_bastion" {
+  description = "ID of the folder for bastion."
+  default     = "b1g9mfafl1aghlq69tc5"
 }
 
-variable "vm_cores" {
-  description = "Number of CPU cores for each VM. Example: 2"
-  default     = 2
-  type        = number
+variable "network_bastion_internal" {
+  description = "Name of the internal network for Bastion."
+  default     = "bastion-internal"
 }
 
-variable "vm_memory" {
-  description = "Total memory for each VM (GB). Example: 2"
-  default     = 4
-  type        = number
+variable "subnet_bastion_internal_a" {
+  description = "Internal bastion subnet in ru-central1-a."
+  default     = "bastion-internal-segment-a"
 }
 
-variable "network_name" {
-  description = "Name of the network"
-  default     = "central-1-network"
+variable "subnet_bastion_internal_b" {
+  description = "Internal bastion subnet in ru-central1-b."
+  default     = "bastion-internal-segment-b"
 }
 
-variable "subnet_name" {
-  description = "Name of the subnet"
-  default     = "subnet"
+variable "network_bastion_external" {
+  description = "Name of the external network for Bastion."
+  default     = "bastion-external"
 }
 
-variable "v4_cidr_blocks" {
-  description = "CIDR blocks for the subnet"
-  default     = "10.0.0.0/24"
+variable "subnet_bastion_external_a" {
+  description = "External bastion subnet in ru-central1-a."
+  default     = "bastion-external-segment-a"
 }
 
-variable "lb_name" {
-  description = "Name of network balancer. Example: lb-1"
-  default     = "my-load-balancer"
-  type        = string
+variable "sg_internal_bastion" {
+  description = "Security group for internal Bastion."
+  default     = "internal-bastion-sg"
 }
 
-variable "target_group_name" {
-  description = "Name of the target group for the load balancerа. Example: hanginx1"
-  default     = "web-target-group"
-  type        = string
+variable "sg_external_bastion" {
+  description = "Security group for external Bastion."
+  default     = "external-bastion-sg"
 }
 
-variable "bastion_name" {
-  description = "Name of the bastion host"
-  default     = "bastion"
+variable "network_web_internal" {
+  description = "Name of the internal network for Web."
+  default     = "web-internal"
+}
+
+variable "subnet_web_internal_a" {
+  description = "Internal web subnet in ru-central1-a."
+  default     = "web-internal-segment-a"
+}
+
+variable "subnet_web_internal_b" {
+  description = "Internal web subnet in ru-central1-b."
+  default     = "web-internal-segment-b"
+}
+
+variable "sg_internal_web" {
+  description = "Security group for internal Web."
+  default     = "internal-web-sg"
 }
 
 variable "bastion_image_id" {
-  description = "Image ID for the bastion host"
-  default     = "fd8u8nticc6r76lvj1jo"
+  description = "Image ID for the web VMs."
+  default     = "fd89a0bj96o8sp88tn6s"
 }
 
 variable "bastion_disk_size" {
-  description = "Disk size for the bastion host in GB"
-  default     = 10
+  description = "Disk size for the web VMs in GB."
+  default     = 20
 }
 
-variable "bastion_zone" {
-  description = "Zone where bastion will be deployed"
-  default     = "ru-central1-a"
+variable "web_vm_image_id" {
+  description = "Image ID for the web VMs."
+  default     = "fd89a0bj96o8sp88tn6s"
 }
 
-variable "vm_zones" {
-  description = "Zones for VMs"
-  default     = ["ru-central1-a", "ru-central1-b"]
+variable "web_vm_disk_size" {
+  description = "Disk size for the web VMs in GB."
+  default     = 20
 }
 
 variable "ssh_public_key" {
-  description = "Public SSH key to access the VMs"
+  description = "Public SSH key to access the VMs."
   default     = "~/.ssh/id_rsa.pub"
 }
 
 variable "user_password" {
-  description = "Password for the user"
+  description = "Password for the user."
   type        = string
   sensitive   = true
 }
