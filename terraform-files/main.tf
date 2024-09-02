@@ -132,7 +132,7 @@ resource "yandex_compute_instance" "bastion" {
     subnet_id           = yandex_vpc_subnet.bastion_internal_a.id
     nat                 = false
     security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
-    ipv4_address        = "172.16.0.254"
+    v4_cidr_blocks      = "172.16.0.254"
   }
 
   network_interface {
