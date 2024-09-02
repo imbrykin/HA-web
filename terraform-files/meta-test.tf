@@ -37,6 +37,7 @@ resource "yandex_compute_instance" "test-vm" {
     initialize_params {
       image_id = var.bastion_image_id
       size     = var.bastion_disk_size
+      type     = "network-ssd"
     }
   }
 
