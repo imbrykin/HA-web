@@ -148,7 +148,6 @@ resource "yandex_compute_instance" "bastion" {
     ssh-keys = "user:${file(var.ssh_public_key)}"
     user-data = templatefile("./meta.yml", {
       hostname = "bastion",
-      password = var.user_password
     })
     serial-port-enable = "1"
   }
