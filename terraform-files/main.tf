@@ -58,6 +58,7 @@ resource "yandex_vpc_security_group" "internal_bastion_sg" {
   ingress {
     description    = "L7-80"
     protocol       = "TCP"
+    from_port      = 80
     to_port        = 80
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
@@ -65,6 +66,7 @@ resource "yandex_vpc_security_group" "internal_bastion_sg" {
   ingress {
     description    = "L7-443"
     protocol       = "TCP"
+    from_port      = 443
     to_port        = 443
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
@@ -72,6 +74,7 @@ resource "yandex_vpc_security_group" "internal_bastion_sg" {
   ingress {
     description    = "L7-30080"
     protocol       = "TCP"
+    from_port      = 30080
     to_port        = 30080
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
