@@ -150,5 +150,6 @@ resource "yandex_compute_instance" "bastion" {
       hostname = "bastion",
       password = var.user_password
     })
+    serial-port-enable = "1"
   }
 }
