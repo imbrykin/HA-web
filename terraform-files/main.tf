@@ -51,15 +51,15 @@ resource "yandex_vpc_security_group" "internal_bastion_sg" {
   ingress {
     description    = "SSH-in"
     protocol       = "TCP"
-    ports          = ["22"]
-    security_group = yandex_vpc_security_group.internal_bastion_sg.id
+    port          = ["22"]
+    security_group_id = yandex_vpc_security_group.internal_bastion_sg.id
   }
 
   ingress {
     description = "L7"
     protocol    = "TCP"
-    ports       = ["80", "443", "30080"]
-    cidr_blocks = ["0.0.0.0/0"]
+    port       = ["80", "443", "30080"]
+    v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -71,8 +71,8 @@ resource "yandex_vpc_security_group" "internal_bastion_sg" {
   egress {
     description = "All-out"
     protocol    = "ANY"
-    ports       = ["0-65535"]
-    cidr_blocks = ["0.0.0.0/0"]
+    port       = ["0-65535"]
+    v4_cidr_blocks= ["0.0.0.0/0"]
   }
 }
 
@@ -84,15 +84,15 @@ resource "yandex_vpc_security_group" "external_bastion_sg" {
   ingress {
     description = "SSH-in"
     protocol    = "TCP"
-    ports       = ["22"]
-    cidr_blocks = ["0.0.0.0/0"]
+    port       = ["22"]
+    v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     description = "All-out"
     protocol    = "ANY"
-    ports       = ["0-65535"]
-    cidr_blocks = ["0.0.0.0/0"]
+    port       = ["0-65535"]
+    v4_cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
