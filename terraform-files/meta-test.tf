@@ -47,7 +47,7 @@ resource "yandex_compute_instance" "test-vm" {
   }
 
   metadata = {
-    user-data = templatefile("./meta.yml", {})
-    serial-port-enable = "1"
+    user-data = "#cloud-config\nusers:\n  - name: user>\n    groups: sudo\n    shell: /bin/bash\n    sudo: 'ALL=(ALL) NOPASSWD:ALL'\n"
+    ssh-keys  = "user:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwUweG4AAWSkzixxuXdWaTsZv24jr/kBjFYrIhPe3mNrbLd8mC/eoEKEP3nhxNP+JLklvSr2YZUl2Ywh8/3xApW1e97p3qbC2AqRG17vMyPyzogLeSECRYzN8C+gO2kHi5OGXjnvjR4TjyZj2+a1fQYlylhURxOTNa8YgRC96hgT0Fn+yOJtxf7qMInVa6ZZ25OFCNCmRFo6WQdV2JkNlfHE7BmD1WGz1lHUPQlMob8z7nWbIDo1gYcFJjOj0ROjCPltIQFwR7ZTrvtujq1KtbCHbxFnycRS7LexmDGCDdzMRzMNotAxti3sAjIbHySh7KvgClUOV6cVqcXxGyR0kZ brykinivan@yandex.cloud"
   }
 }
