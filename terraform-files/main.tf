@@ -65,7 +65,7 @@ resource "yandex_vpc_security_group" "internal_bastion_sg" {
   ingress {
     description    = "ICMP allow"
     protocol       = "ICMP"
-    security_group = yandex_vpc_security_group.internal_bastion_sg.id
+    security_group_id = yandex_vpc_security_group.internal_bastion_sg.id
   }
 
   egress {
