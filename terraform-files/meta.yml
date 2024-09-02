@@ -1,14 +1,15 @@
 # meta.yml
 #cloud-config
 datasource:
-  Ec2:
-    strict_id: false
+ Ec2:
+  strict_id: false
+ssh_pwauth: no
 users:
-- name: user
-  ssh_pwauth: no
-  sudo: ALL=(ALL) NOPASSWD:ALL
-  shell: /bin/bash
-  lock_passwd: false
-  passwd: "$6$rounds=4096$4quHiiH6WjYGNlmi$5cLcAZyc0dE0nUNWegbV7dji2hk90q9v3oah8pFZyCx8B9bqgsUpSZAPnveknNgFdyxO5H9EHoF1G6z.nmB7h0"
-  ssh_authorized_keys:
-  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwUweG4AAWSkzixxuXdWaTsZv24jr/kBjFYrIhPe3mNrbLd8mC/eoEKEP3nhxNP+JLklvSr2YZUl2Ywh8/3xApW1e97p3qbC2AqRG17vMyPyzogLeSECRYzN8C+gO2kHi5OGXjnvjR4TjyZj2+a1fQYlylhURxOTNa8YgRC96hgT0Fn+yOJtxf7qMInVa6ZZ25OFCNCmRFo6WQdV2JkNlfHE7BmD1WGz1lHUPQlMob8z7nWbIDo1gYcFJjOj0ROjCPltIQFwR7ZTrvtujq1KtbCHbxFnycRS7LexmDGCDdzMRzMNotAxti3sAjIbHySh7KvgClUOV6cVqcXxGyR0kZ brykinivan@yandex.cloud
+  - name: username
+    ssh_pwauth: no
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    lock_passwd: false
+    passwd: "$6$rounds=4096$4quHiiH6WjYGNlmi$5cLcAZyc0dE0nUNWegbV7dji2hk90q9v3oah8pFZyCx8B9bqgsUpSZAPnveknNgFdyxO5H9EHoF1G6z.nmB7h0"
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwUweG4AAWSkzixxuXdWaTsZv24jr/kBjFYrIhPe3mNrbLd8mC/eoEKEP3nhxNP+JLklvSr2YZUl2Ywh8/3xApW1e97p3qbC2AqRG17vMyPyzogLeSECRYzN8C+gO2kHi5OGXjnvjR4TjyZj2+a1fQYlylhURxOTNa8YgRC96hgT0Fn+yOJtxf7qMInVa6ZZ25OFCNCmRFo6WQdV2JkNlfHE7BmD1WGz1lHUPQlMob8z7nWbIDo1gYcFJjOj0ROjCPltIQFwR7ZTrvtujq1KtbCHbxFnycRS7LexmDGCDdzMRzMNotAxti3sAjIbHySh7KvgClUOV6cVqcXxGyR0kZ brykinivan@yandex.cloud
