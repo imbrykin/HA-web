@@ -107,9 +107,3 @@ variable "ssh_public_key" {
   description = "Public SSH key to access the VMs."
   default     = "~/.ssh/id_rsa.pub"
 }
-
-variable "user_password" {
-  description = "Password for the user."
-  type        = string
-  sensitive   = true
-}
