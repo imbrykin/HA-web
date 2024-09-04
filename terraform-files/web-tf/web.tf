@@ -56,7 +56,7 @@ resource "yandex_vpc_security_group" "internal_web_sg" {
 
   egress {
     description    = "All-out"
-    protocol       = "ALL"
+    protocol       = "ANY"
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
 }
