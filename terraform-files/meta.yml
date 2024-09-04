@@ -19,6 +19,7 @@ write_files:
     permissions: "0755"
     content: |
       #!/bin/bash
+      ip route del default via 172.16.0.1 dev eth0
       ip route add 172.16.0.0/24 dev eth0 src 172.16.0.254 table eth0_table
       ip route add 172.16.1.0/24 dev eth0 src 172.16.0.254 table eth0_table 
       ip route add 0.0.0.0/0 via 172.16.1.1 dev eth1 metric 100 table eth1_table
@@ -51,5 +52,5 @@ write_files:
 runcmd:
   - [ chmod, +x, /etc/routing.sh ]
   - [ systemctl, daemon-reload ]
-#  - [ systemctl, enable, routing.service ]
-#  - [ systemctl, start, routing.service ]
+  - [ systemctl, enable, routing.service ]
+  - [ systemctl, start, routing.service ]
