@@ -47,7 +47,7 @@ resource "yandex_compute_instance" "test-vm" {
   }
 
   metadata = {
-    user-data = file("terraform-files/meta.yml")
+    user-data = file("/HA-web/terraform-files/meta.yml")
     serial_port_enable = "true"
   }
 }
