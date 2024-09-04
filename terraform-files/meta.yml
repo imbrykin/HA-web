@@ -30,8 +30,8 @@ write_files:
     append: true
     permissions: "0644"
     content: |
-      200 eth0_table
-      201 eth1_table
+      1 eth0_table
+      2 eth1_table
 
   - path: "/etc/systemd/system/routing.service"
     permissions: "0644"
