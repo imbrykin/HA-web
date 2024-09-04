@@ -25,6 +25,14 @@ write_files:
       ip route add default via 172.16.1.1 dev eth1 table eth1_table
       ip rule add from 172.16.0.254 table eth0_table
       ip rule add from 172.16.1.254 table eth1_table
+
+  - path: "/etc/iproute2/rt_tables"
+    append: true
+    permissions: "0644"
+    content: |
+      200 eth0_table
+      201 eth1_table
+
   - path: "/etc/systemd/system/routing.service"
     permissions: "0644"
     content: |
