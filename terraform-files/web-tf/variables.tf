@@ -1,111 +1,109 @@
-
-terraform {
-  required_providers {
-    yandex = {
-      source = "yandex-cloud/yandex"
-    }
-  }
-  required_version = ">= 0.13"
+variable "cloud_id" {
+  description = "ID of the cloud."
+  default     = "b1gaiq9iahfd9gh90fdp"
 }
 
-provider "yandex" {
-  cloud_id  = var.cloud_id
-  folder_id = var.folder_bastion
+variable "folder_net" {
+  description = "ID of the folder for networks."
+  default     = "b1g8j75i8n1a1rgl367g"
 }
 
-# New Web Internal Network and Subnets
-resource "yandex_vpc_network" "web_internal" {
-  name        = var.network_web_internal
-  description = "Internal web network"
+variable "folder_nginx" {
+  description = "ID of the folder for nginx."
+  default     = "b1gpio1c0rklprhlris9"
 }
 
-resource "yandex_vpc_subnet" "web_internal_a" {
-  name           = var.subnet_web_internal_a
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.web_internal.id
-  v4_cidr_blocks = ["10.10.0.0/24"]
+variable "folder_zabbix" {
+  description = "ID of the folder for zabbix."
+  default     = "b1ggg1qhfnh117p1tse7"
 }
 
-resource "yandex_vpc_subnet" "web_internal_b" {
-  name           = var.subnet_web_internal_b
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.web_internal.id
-  v4_cidr_blocks = ["10.11.0.0/24"]
+variable "folder_elk" {
+  description = "ID of the folder for elk."
+  default     = "b1gjrmll0on5ut4uha4v"
 }
 
-# Security Group for Web Servers
-resource "yandex_vpc_security_group" "internal_web_sg" {
-  name        = var.sg_internal_web
-  network_id  = yandex_vpc_network.web_internal.id
-  description = "Internal security group for Web"
-
-  ingress {
-    description       = "SSH-in"
-    protocol          = "TCP"
-    port              = 22
-    predefined_target = "self_security_group"
-  }
-
-  ingress {
-    description       = "HTTP Healthcheck"
-    protocol          = "TCP"
-    from_port         = 80
-    to_port           = 80
-    predefined_target = "self_security_group"
-  }
-
-  egress {
-    description    = "All-out"
-    protocol       = "ALL"
-    v4_cidr_blocks = ["0.0.0.0/0"]
-  }
+variable "folder_bastion" {
+  description = "ID of the folder for bastion."
+  default     = "b1g9mfafl1aghlq69tc5"
 }
 
-# VM Instances for Web
-resource "yandex_compute_instance" "web0" {
-  name        = "web0"
-  platform_id = "standard-v1"
-  zone        = "ru-central1-a"
-  resources {
-    cores  = 2
-    memory = 4
-  }
-  boot_disk {
-    initialize_params {
-      image_id = var.web_vm_image_id
-      size     = var.web_vm_disk_size
-    }
-  }
-  network_interface {
-    subnet_id          = yandex_vpc_subnet.web_internal_a.id
-    security_group_ids = [yandex_vpc_security_group.internal_web_sg.id]
-  }
-
-  metadata = {
-    ssh-keys = "user:${file(var.ssh_public_key)}"
-  }
+variable "network_bastion_internal" {
+  description = "Name of the internal network for Bastion."
+  default     = "bastion-internal"
 }
 
-resource "yandex_compute_instance" "web1" {
-  name        = "web1"
-  platform_id = "standard-v1"
-  zone        = "ru-central1-b"
-  resources {
-    cores  = 2
-    memory = 4
-  }
-  boot_disk {
-    initialize_params {
-      image_id = var.web_vm_image_id
-      size     = var.web_vm_disk_size
-    }
-  }
-  network_interface {
-    subnet_id          = yandex_vpc_subnet.web_internal_b.id
-    security_group_ids = [yandex_vpc_security_group.internal_web_sg.id]
-  }
+variable "subnet_bastion_internal_a" {
+  description = "Internal bastion subnet in ru-central1-a."
+  default     = "bastion-internal-segment-a"
+}
 
-  metadata = {
-    ssh-keys = "user:${file(var.ssh_public_key)}"
-  }
+variable "subnet_bastion_internal_b" {
+  description = "Internal bastion subnet in ru-central1-b."
+  default     = "bastion-internal-segment-b"
+}
+
+variable "network_bastion_external" {
+  description = "Name of the external network for Bastion."
+  default     = "bastion-external"
+}
+
+variable "subnet_bastion_external_a" {
+  description = "External bastion subnet in ru-central1-a."
+  default     = "bastion-external-segment-a"
+}
+
+variable "sg_internal_bastion" {
+  description = "Security group for internal Bastion."
+  default     = "internal-bastion-sg"
+}
+
+variable "sg_external_bastion" {
+  description = "Security group for external Bastion."
+  default     = "external-bastion-sg"
+}
+
+variable "network_web_internal" {
+  description = "Name of the internal network for Web."
+  default     = "web-internal"
+}
+
+variable "subnet_web_internal_a" {
+  description = "Internal web subnet in ru-central1-a."
+  default     = "web-internal-segment-a"
+}
+
+variable "subnet_web_internal_b" {
+  description = "Internal web subnet in ru-central1-b."
+  default     = "web-internal-segment-b"
+}
+
+variable "sg_internal_web" {
+  description = "Security group for internal Web."
+  default     = "internal-web-sg"
+}
+
+variable "bastion_image_id" {
+  description = "Image ID for the web VMs."
+  default     = "fd89a0bj96o8sp88tn6s"
+}
+
+variable "bastion_disk_size" {
+  description = "Disk size for the web VMs in GB."
+  default     = 20
+}
+
+variable "web_vm_image_id" {
+  description = "Image ID for the web VMs."
+  default     = "fd89a0bj96o8sp88tn6s"
+}
+
+variable "web_vm_disk_size" {
+  description = "Disk size for the web VMs in GB."
+  default     = 20
+}
+
+variable "ssh_public_key" {
+  description = "Public SSH key to access the VMs."
+  default     = "~/.ssh/id_rsa.pub"
 }

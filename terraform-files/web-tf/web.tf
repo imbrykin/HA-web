@@ -13,19 +13,6 @@ provider "yandex" {
   folder_id = var.folder_bastion
 }
 
-# Bastion Networks and Subnets (existing)
-resource "yandex_vpc_network" "bastion_internal" {
-  name        = var.network_bastion_internal
-  description = "Internal bastion network"
-}
-
-resource "yandex_vpc_subnet" "bastion_internal_a" {
-  name           = var.subnet_bastion_internal_a
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.bastion_internal.id
-  v4_cidr_blocks = ["172.16.0.0/24"]
-}
-
 # New Web Internal Network and Subnets
 resource "yandex_vpc_network" "web_internal" {
   name        = var.network_web_internal
