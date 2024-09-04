@@ -143,6 +143,7 @@ resource "yandex_compute_instance" "bastion" {
     subnet_id           = yandex_vpc_subnet.bastion_external_a.id
     nat                 = true
     security_group_ids  = [yandex_vpc_security_group.external_bastion_sg.id]
+    ip_address          = "172.16.1.254"
   }
 
   metadata = {
