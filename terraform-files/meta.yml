@@ -20,11 +20,10 @@ write_files:
     content: |
       #!/bin/bash
       ip route add 172.16.0.0/24 dev eth0 src 172.16.0.254 table eth0_table
-      ip route add default via 172.16.0.1 dev eth0 metric 91 table eth0_table
-      ip route add 172.16.1.0/24 dev eth1 src 172.16.1.254 table eth1_table
-      ip route add default via 172.16.1.1 dev eth1 metric 90 table eth1_table
-      ip rule add from 172.16.0.254 table eth0_table
+      ip route add 172.16.1.0/24 dev eth0 src 172.16.0.254 table eth0_table 
+      ip route add 0.0.0.0/0 via 172.16.1.1 dev eth1 metric 100 table eth1_table
       ip rule add from 172.16.1.254 table eth1_table
+      ip rule add from 172.16.0.254 table eth0_table
 
   - path: "/etc/iproute2/rt_tables"
     append: true
