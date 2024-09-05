@@ -22,7 +22,9 @@ write_files:
       ip route del default via 172.16.0.1 dev eth0
       ip route add 172.16.0.0/24 dev eth0 src 172.16.0.254 table eth0_table
       ip route add 172.16.1.0/24 dev eth0 src 172.16.0.254 table eth0_table 
+      ip route add 172.17.0.0/24 dev eth0 src 172.16.0.254 table eth0_table
       ip route add 0.0.0.0/0 via 172.16.1.1 dev eth1 metric 100 table eth1_table
+      ip route add 172.17.0.0/24 dev eth0 metric 100 src 172.16.0.254
       ip rule add from 172.16.1.254 table eth1_table
       ip rule add from 172.16.0.254 table eth0_table
 
