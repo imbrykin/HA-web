@@ -319,7 +319,7 @@ resource "yandex_alb_backend_group" "web_alb_backend_group" {
     name                   = "web-alb-http-backend-group"
     weight                 = 1
     port                   = 80
-    target_group_ids       = yandex_alb_backend_group.web_alb_target_group.id
+    target_group_ids       = yandex_alb_target_group.web_alb_target_group.id
     load_balancing_config {
       panic_threshold      = 20
     }
@@ -331,7 +331,7 @@ resource "yandex_alb_backend_group" "web_alb_backend_group" {
       }
     }
   }
-  depends_on = [yandex_compute_instance.web2.id, yandex_compute_instance.web1.id]
+  depends_on = [yandex_compute_instance.web2.id]
 }
 
 # HTTP Router Configuration
