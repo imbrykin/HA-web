@@ -207,8 +207,8 @@ resource "yandex_lb_network_load_balancer" "l4_web" {
         port = 80
         path = "/"
       }
-
-}
+    }
+  }
 
 # HTTP Router Configuration
 resource "yandex_alb_http_router" "http_router_web" {
