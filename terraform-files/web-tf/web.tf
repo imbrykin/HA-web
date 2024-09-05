@@ -312,7 +312,7 @@ resource "yandex_alb_backend_group" "web_alb_backend_group" {
   name                     = "web-alb-backend-group"
   session_affinity {
     connection {
-      source_ip = "127.0.0.1"
+      source_ip = true
     }
   }
   http_backend {
@@ -331,7 +331,7 @@ resource "yandex_alb_backend_group" "web_alb_backend_group" {
       }
     }
   }
-  depends_on = [yandex_compute_instance.web2.id]
+  depends_on = [yandex_compute_instance.web2]
 }
 
 # HTTP Router Configuration
