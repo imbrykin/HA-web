@@ -357,3 +357,42 @@ resource "yandex_alb_virtual_host" "web_virtual_host" {
   }
   depends_on = [yandex_lb_target_group.web_alb_backend_group]
 }
+
+resource "yandex_alb_load_balancer" "web_l7_bal" {
+  name        = "web-l7-bal"
+  network_id  = var.network_bastion_internal
+  security_group_ids = [yandex_vpc_security_group.internal_bastion_sg.id]
+
+  allocation_policy {
+    location {
+      zone_id   = "ru-central1-a"
+      subnet_id = var.subnet_bastion_internal_a
+    }
+  }
+
+  listener {
+    name = "l7-web-lb"
+    endpoint {
+      address {
+        external_ipv4_address {
+        }
+      }
+      ports = [ 80 ]
+    }
+    http {
+      handler {
+        http_router_id = yandex_alb_http_router.http_router_web.id
+      }
+    }
+  }
+
+  log_options {
+    log_group_id = "<идентификатор_лог-группы>"
+    discard_rule {
+      http_codes          = ["100-599"]
+      http_code_intervals = ["1XX-5XX"]
+      grpc_codes          = ["NOT_FOUND", "RESOURCE_EXHAUSTED"]
+      discard_percent     = 75
+    }
+  }
+}
