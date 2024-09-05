@@ -192,8 +192,8 @@ resource "yandex_compute_instance" "web1" {
   }
 }
 
-resource "yandex_compute_instance" "web1" {
-  name        = "web1"
+resource "yandex_compute_instance" "web2" {
+  name        = "web2"
   platform_id = "standard-v1"
   zone        = "ru-central1-b"
   resources {
