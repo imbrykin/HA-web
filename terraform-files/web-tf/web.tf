@@ -178,18 +178,36 @@ resource "yandex_lb_target_group" "web_backend_group" {
   }
 }
 
-resource "yandex_lb_network_load_balancer" "foo" {
-  name = "nlb-internal"
+# 4. L4 Load Balancer
+resource "yandex_lb_network_load_balancer" "l4_web" {
+  name        = "l4-web"
+  description = "L4 web balancer"
+  type        = "external"
+  
+  listener {
+    name = "http-listener"
+    port = 80
+    protocol = "HTTP"
+    external_address_spec {
+      ip_version = "ipv4"
+    }
+  }
+
   attached_target_group {
     target_group_id = yandex_lb_target_group.web_backend_group.id
-    healthcheck {
+  }
+
+  allocation_policy {
+    zone_ids = ["ru-central1-a", "ru-central1-b"]
+  }
+
+  healthcheck {
       name = "http"
       http_options {
         port = 80
         path = "/"
       }
-    }
-  }
+
 }
 
 # HTTP Router Configuration
@@ -215,32 +233,6 @@ resource "yandex_alb_virtual_host" "web_virtual_host" {
       }
     }
   }
-}
-
-# 4. Application Load Balancer
-resource "yandex_lb_network_load_balancer" "l7_web" {
-  name        = "l7-web"
-  description = "L7 web balancer"
-  type        = "external"
-  
-  listener {
-    name = "http-listener"
-    port = 80
-    protocol = "HTTP"
-    external_address_spec {
-      ip_version = "ipv4"
-    }
-  }
-
-  attached_target_group {
-    target_group_id = yandex_lb_target_group.web_backend_group.id
-  }
-
-  allocation_policy {
-    zone_ids = ["ru-central1-a", "ru-central1-b"]
-  }
-
-  # Other related settings omitted for brevity
 }
 
 # 5. NAT Gateway
