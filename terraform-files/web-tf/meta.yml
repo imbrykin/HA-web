@@ -14,9 +14,3 @@ users:
       - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwUweG4AAWSkzixxuXdWaTsZv24jr/kBjFYrIhPe3mNrbLd8mC/eoEKEP3nhxNP+JLklvSr2YZUl2Ywh8/3xApW1e97p3qbC2AqRG17vMyPyzogLeSECRYzN8C+gO2kHi5OGXjnvjR4TjyZj2+a1fQYlylhURxOTNa8YgRC96hgT0Fn+yOJtxf7qMInVa6ZZ25OFCNCmRFo6WQdV2JkNlfHE7BmD1WGz1lHUPQlMob8z7nWbIDo1gYcFJjOj0ROjCPltIQFwR7ZTrvtujq1KtbCHbxFnycRS7LexmDGCDdzMRzMNotAxti3sAjIbHySh7KvgClUOV6cVqcXxGyR0kZ brykinivan@yandex.cloud
     chpasswd:
       expire: false
-write_files:
-  - path: /home/user/.ssh/id_rsa
-    permissions: '0600'
-    owner: user:user
-    content: |
-      ${file("/root/.ssh/id_rsa")}
