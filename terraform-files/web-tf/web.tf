@@ -18,7 +18,7 @@ resource "yandex_vpc_network" "bastion_internal" {
   description = "Internal bastion network"
 }
 
-# 5. NAT Gateway
+# NAT Gateway
 resource "yandex_vpc_gateway" "natgw" {
   name        = "natgw"
   description = "NAT gateway for web hosts"
@@ -27,7 +27,7 @@ resource "yandex_vpc_gateway" "natgw" {
   # subnet_ids  = [yandex_vpc_subnet.bastion_internal_a.id, yandex_vpc_subnet.bastion_internal_b.id]
 }
 
-# 6. Routing Table
+# Routing Table
 resource "yandex_vpc_route_table" "web_routing_table" {
   name        = "web-routing-table"
   description = "Routing table of NAT-gateway for web hosts"
@@ -174,70 +174,6 @@ resource "yandex_vpc_security_group" "external_bastion_sg" {
   }
 }
 
-
-# # 3. Reserved Public IP
-# resource "yandex_vpc_address" "public_ip" {
-#   description        = "Reserved Public IP for load balancer"
-#   name               = "l7-pub"
-#   external_ipv4_address {
-#     zone_id = "ru-central1-a"
-#   }
-# }
-
-# Backend group
-# resource "yandex_lb_target_group" "web_backend_group" {
-#   name = "web-backend-group"
-
-#   target {
-#     address    = "172.17.0.10"
-#     subnet_id  = yandex_vpc_subnet.bastion_internal_b.id
-#   }
-
-#   target {
-#     address    = "172.16.0.10"
-#     subnet_id  = yandex_vpc_subnet.bastion_internal_a.id
-#   }
-# }
-
-# 4. L4 Load Balancer
-# resource "yandex_lb_network_load_balancer" "l4_web" {
-#   name        = "l4-web"
-#   description = "L4 web balancer"
-#   type        = "external"
-  
-#   listener {
-#     name = "http-listener"
-#     port = 80
-#     protocol = "tcp"
-#     external_address_spec {
-#       ip_version = "ipv4"
-#     }
-#   }
-
-#   attached_target_group {
-#     target_group_id = yandex_lb_target_group.web_backend_group.id
-#     healthcheck {
-#       name = "http"
-#       http_options {
-#         port = 80
-#         path = "/"
-#       }
-#     }
-#   }
-# }
-
-
-# Subnets to apply the routing table
-# resource "yandex_vpc_subnet_route_table_attachment" "bastion_internal_a_route" {
-#   subnet_id    = yandex_vpc_subnet.bastion_internal_a.id
-#   route_table_id = yandex_vpc_route_table.web_routing_table.id
-# }
-
-# resource "yandex_vpc_subnet_route_table_attachment" "bastion_internal_b_route" {
-#   subnet_id    = yandex_vpc_subnet.bastion_internal_b.id
-#   route_table_id = yandex_vpc_route_table.web_routing_table.id
-# }
-
 resource "yandex_compute_instance" "bastion" {
   name       = "bastion"
   zone       = "ru-central1-a"
@@ -329,7 +265,7 @@ resource "yandex_compute_instance" "web2" {
   }
 }
 
-#Target host group for ALB
+# Target host group for ALB
 resource "yandex_alb_target_group" "web_alb_target_group" {
   name           = "web-alb-target-group"
 
@@ -345,7 +281,7 @@ resource "yandex_alb_target_group" "web_alb_target_group" {
 
 }
 
-#Backend group for ALB
+# Backend group for ALB
 resource "yandex_alb_backend_group" "web_alb_backend_group" {
   name                     = "web-alb-backend-group"
   session_affinity {
