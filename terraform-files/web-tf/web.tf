@@ -366,7 +366,7 @@ resource "yandex_alb_load_balancer" "web_l7_bal" {
   allocation_policy {
     location {
       zone_id   = "ru-central1-a"
-      subnet_id = var.subnet_bastion_internal_a
+      subnet_id = yandex_vpc_subnet.bastion_internal_a.id
     }
   }
 
