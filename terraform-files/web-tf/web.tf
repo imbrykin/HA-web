@@ -18,10 +18,31 @@ resource "yandex_vpc_network" "bastion_internal" {
   description = "Internal bastion network"
 }
 
+# 5. NAT Gateway
+resource "yandex_vpc_gateway" "nat-gw" {
+  name        = "nat-gw"
+  description = "NAT gateway for web hosts"
+  shared_egress_gateway {}
+  # network_id  = yandex_vpc_network.bastion_internal.id
+  # subnet_ids  = [yandex_vpc_subnet.bastion_internal_a.id, yandex_vpc_subnet.bastion_internal_b.id]
+}
+
+# 6. Routing Table
+resource "yandex_vpc_route_table" "web_routing_table" {
+  name        = "web-routing-table"
+  description = "Routing table of NAT-gw for web hosts"
+  network_id  = yandex_vpc_network.bastion_internal.id
+
+  static_route {
+    destination_prefix = "0.0.0.0/0"
+    next_hop_address   = "${yandex_vpc_gateway.nat-gw.id}"
+  }
+}
+
 resource "yandex_dns_zone" "internal_cloud" {
   name             = "internal-cloud"
   description      = "Internal DNS for cloud"
-  private_networks = ["bastion_internal"]
+  private_networks = [yandex_vpc_network.bastion_internal.id]
   zone             = "internal-cloud."
   public           = false
   labels = {
@@ -229,25 +250,7 @@ resource "yandex_alb_virtual_host" "web_virtual_host" {
   }
 }
 
-# 5. NAT Gateway
-resource "yandex_vpc_gateway" "nat_gw" {
-  name        = "nat-gw"
-  description = "NAT gateway for web hosts"
-  # network_id  = yandex_vpc_network.bastion_internal.id
-  # subnet_ids  = [yandex_vpc_subnet.bastion_internal_a.id, yandex_vpc_subnet.bastion_internal_b.id]
-}
 
-# 6. Routing Table
-resource "yandex_vpc_route_table" "web_routing_table" {
-  name        = "web-routing-table"
-  description = "Routing table of NAT-gw for web hosts"
-  network_id  = yandex_vpc_network.bastion_internal.id
-
-  static_route {
-    destination_prefix = "0.0.0.0/0"
-    next_hop_address   = yandex_vpc_gateway.nat_gw.id
-  }
-}
 
 # Subnets to apply the routing table
 # resource "yandex_vpc_subnet_route_table_attachment" "bastion_internal_a_route" {
@@ -277,6 +280,8 @@ resource "yandex_compute_instance" "web1" {
   network_interface {
     subnet_id          = yandex_vpc_subnet.bastion_internal_a.id
     security_group_ids = [yandex_vpc_security_group.internal_bastion_sg.id]
+    nat                 = false
+    ip_address          = "172.16.0.10"
   }
 
   metadata = {
@@ -304,13 +309,6 @@ resource "yandex_compute_instance" "web2" {
     security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
     ip_address          = "172.17.0.10"
   }
-
-  network_interface {
-    subnet_id           = yandex_vpc_subnet.bastion_external_a.id
-    nat                 = false
-    security_group_ids  = [yandex_vpc_security_group.external_bastion_sg.id]
-    ip_address          = "172.16.1.10"
-  }  
 
   metadata = {
     user-data = templatefile("./meta.yml", {})
