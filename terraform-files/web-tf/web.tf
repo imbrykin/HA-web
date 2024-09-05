@@ -19,8 +19,8 @@ resource "yandex_vpc_network" "bastion_internal" {
 }
 
 # 5. NAT Gateway
-resource "yandex_vpc_gateway" "nat-gw" {
-  name        = "nat-gw"
+resource "yandex_vpc_gateway" "natgw" {
+  name        = "natgw"
   description = "NAT gateway for web hosts"
   shared_egress_gateway {}
   # network_id  = yandex_vpc_network.bastion_internal.id
@@ -30,12 +30,12 @@ resource "yandex_vpc_gateway" "nat-gw" {
 # 6. Routing Table
 resource "yandex_vpc_route_table" "web_routing_table" {
   name        = "web-routing-table"
-  description = "Routing table of NAT-gw for web hosts"
+  description = "Routing table of NAT-gateway for web hosts"
   network_id  = yandex_vpc_network.bastion_internal.id
 
   static_route {
     destination_prefix = "0.0.0.0/0"
-    gateway_id         = yandex_vpc_nat_gateway.nat-gw.id
+    gateway_id         = yandex_vpc_nat_gateway.natgw.id
   }
 }
 
