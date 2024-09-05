@@ -387,7 +387,6 @@ resource "yandex_alb_load_balancer" "web_l7_bal" {
   }
 
   log_options {
-    log_group_id = "<идентификатор_лог-группы>"
     discard_rule {
       http_code_intervals = ["1XX-5XX"]
       grpc_codes          = ["NOT_FOUND", "RESOURCE_EXHAUSTED"]
