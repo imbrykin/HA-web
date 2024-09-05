@@ -246,7 +246,7 @@ resource "yandex_vpc_route_table" "web_routing_table" {
 
   static_route {
     destination_prefix = "0.0.0.0/0"
-    next_hop_nat       = yandex_vpc_nat_gateway.nat_gw.id
+    next_hop_address   = yandex_vpc_nat_gateway.nat_gw.id
   }
 }
 
@@ -276,8 +276,8 @@ resource "yandex_compute_instance" "web1" {
     }
   }
   network_interface {
-    subnet_id          = yandex_vpc_subnet.web_internal_b.id
-    security_group_ids = [yandex_vpc_security_group.internal_web_sg.id]
+    subnet_id          = yandex_vpc_subnet.bastion_internal_a.id
+    security_group_ids = [yandex_vpc_security_group.internal_bastion_sg.id]
   }
 
   metadata = {
@@ -300,17 +300,17 @@ resource "yandex_compute_instance" "web2" {
     }
   }
   network_interface {
-    subnet_id           = yandex_vpc_subnet.bastion_internal_a.id
+    subnet_id           = yandex_vpc_subnet.bastion_internal_b.id
     nat                 = false
     security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
-    ip_address          = "172.16.0.254"
+    ip_address          = "172.17.0.10"
   }
 
   network_interface {
     subnet_id           = yandex_vpc_subnet.bastion_external_a.id
     nat                 = false
     security_group_ids  = [yandex_vpc_security_group.external_bastion_sg.id]
-    ip_address          = "172.16.1.254"
+    ip_address          = "172.16.1.10"
   }  
 
   metadata = {
