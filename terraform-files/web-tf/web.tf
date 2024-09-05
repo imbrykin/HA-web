@@ -231,11 +231,11 @@ resource "yandex_alb_virtual_host" "web_virtual_host" {
 }
 
 # 5. NAT Gateway
-resource "yandex_vpc_nat_gateway" "nat_gw" {
+resource "yandex_vpc_gateway" "nat_gw" {
   name        = "nat-gw"
   description = "NAT gateway for web hosts"
-  network_id  = yandex_vpc_network.bastion_internal.id
-  subnet_ids  = [yandex_vpc_subnet.bastion_internal_a.id, yandex_vpc_subnet.bastion_internal_b.id]
+  # network_id  = yandex_vpc_network.bastion_internal.id
+  # subnet_ids  = [yandex_vpc_subnet.bastion_internal_a.id, yandex_vpc_subnet.bastion_internal_b.id]
 }
 
 # 6. Routing Table
@@ -251,15 +251,15 @@ resource "yandex_vpc_route_table" "web_routing_table" {
 }
 
 # Subnets to apply the routing table
-resource "yandex_vpc_subnet_route_table_attachment" "bastion_internal_a_route" {
-  subnet_id    = yandex_vpc_subnet.bastion_internal_a.id
-  route_table_id = yandex_vpc_route_table.web_routing_table.id
-}
+# resource "yandex_vpc_subnet_route_table_attachment" "bastion_internal_a_route" {
+#   subnet_id    = yandex_vpc_subnet.bastion_internal_a.id
+#   route_table_id = yandex_vpc_route_table.web_routing_table.id
+# }
 
-resource "yandex_vpc_subnet_route_table_attachment" "bastion_internal_b_route" {
-  subnet_id    = yandex_vpc_subnet.bastion_internal_b.id
-  route_table_id = yandex_vpc_route_table.web_routing_table.id
-}
+# resource "yandex_vpc_subnet_route_table_attachment" "bastion_internal_b_route" {
+#   subnet_id    = yandex_vpc_subnet.bastion_internal_b.id
+#   route_table_id = yandex_vpc_route_table.web_routing_table.id
+# }
 
 resource "yandex_compute_instance" "web1" {
   name        = "web1"
