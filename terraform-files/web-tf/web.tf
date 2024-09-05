@@ -23,8 +23,11 @@ resource "yandex_vpc_gateway" "natgw" {
   name        = "natgw"
   description = "NAT gateway for web hosts"
   shared_egress_gateway {}
-  # network_id  = yandex_vpc_network.bastion_internal.id
-  # subnet_ids  = [yandex_vpc_subnet.bastion_internal_a.id, yandex_vpc_subnet.bastion_internal_b.id]
+  network_id  = yandex_vpc_network.bastion_internal.id
+  subnet_ids  = [
+    yandex_vpc_subnet.bastion_internal_a.id,
+    yandex_vpc_subnet.bastion_internal_b.id
+  ]
 }
 
 # Routing Table
@@ -35,7 +38,7 @@ resource "yandex_vpc_route_table" "web_routing_table" {
 
   static_route {
     destination_prefix = "0.0.0.0/0"
-    gateway_id         = "${yandex_vpc_gateway.natgw.id}"
+    gateway_id         = yandex_vpc_gateway.natgw.id
   }
 }
 
