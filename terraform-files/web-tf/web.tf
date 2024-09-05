@@ -176,13 +176,19 @@ resource "yandex_lb_target_group" "web_backend_group" {
     address    = "172.16.0.10"
     subnet_id  = yandex_vpc_subnet.bastion_internal_a.id
   }
+}
 
-  healthcheck {
-    name = "http-healthcheck"
-    http_options {
-      path = "/"
+resource "yandex_lb_network_load_balancer" "foo" {
+  name = "nlb-internal"
+  attached_target_group {
+    target_group_id = yandex_lb_target_group.web_backend_group.id
+    healthcheck {
+      name = "http"
+      http_options {
+        port = 80
+        path = "/"
+      }
     }
-    port = 80
   }
 }
 
