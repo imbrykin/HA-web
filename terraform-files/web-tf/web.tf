@@ -233,7 +233,7 @@ resource "yandex_lb_network_load_balancer" "l7_web" {
   }
 
   attached_target_group {
-    target_group_id = yandex_lb_target_group.l7_tg.id
+    target_group_id = yandex_lb_target_group.web_backend_group.id
   }
 
   allocation_policy {
