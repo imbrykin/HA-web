@@ -377,7 +377,7 @@ resource "yandex_alb_load_balancer" "web_l7_bal" {
         external_ipv4_address {
         }
       }
-      ports = [ 80 ]
+      ports = [80]
     }
     http {
       handler {
@@ -388,9 +388,9 @@ resource "yandex_alb_load_balancer" "web_l7_bal" {
 
   log_options {
     discard_rule {
-      http_code_intervals = ["1XX-5XX"]
-      grpc_codes          = ["NOT_FOUND", "RESOURCE_EXHAUSTED"]
-      discard_percent     = 75
+      http_codes       = [100, 101, 200, 201, 300, 301, 400, 404, 500, 502] 
+      grpc_codes       = ["NOT_FOUND", "RESOURCE_EXHAUSTED"]
+      discard_percent  = 75
     }
   }
 }
