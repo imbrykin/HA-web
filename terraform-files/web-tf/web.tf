@@ -35,7 +35,7 @@ resource "yandex_vpc_route_table" "web_routing_table" {
 
   static_route {
     destination_prefix = "0.0.0.0/0"
-    next_hop_address   = "${yandex_vpc_gateway.nat-gw.id}"
+    next_hop_nat       = yandex_vpc_nat_gateway.nat_gw.id
   }
 }
 
@@ -248,6 +248,7 @@ resource "yandex_alb_virtual_host" "web_virtual_host" {
       }
     }
   }
+  depends_on = [yandex_lb_target_group.web_backend_group]
 }
 
 
