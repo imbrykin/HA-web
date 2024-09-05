@@ -238,6 +238,43 @@ resource "yandex_vpc_security_group" "external_bastion_sg" {
 #   route_table_id = yandex_vpc_route_table.web_routing_table.id
 # }
 
+resource "yandex_compute_instance" "bastion" {
+  name       = "bastion"
+  zone       = "ru-central1-a"
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = var.bastion_image_id
+      size     = var.bastion_disk_size
+      type     = "network-ssd"
+    }
+  }
+
+  network_interface {
+    subnet_id           = yandex_vpc_subnet.bastion_internal_a.id
+    nat                 = false
+    security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
+    ip_address          = "172.16.0.254"
+  }
+
+  network_interface {
+    subnet_id           = yandex_vpc_subnet.bastion_external_a.id
+    nat                 = true
+    security_group_ids  = [yandex_vpc_security_group.external_bastion_sg.id]
+    ip_address          = "172.16.1.254"
+  }  
+
+  metadata = {
+    user-data = templatefile("./meta.yml", {})
+    serial-port-enable = "1"
+  }
+}
+
 resource "yandex_compute_instance" "web1" {
   name        = "web1"
   zone        = "ru-central1-a"
