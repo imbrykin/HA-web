@@ -350,12 +350,12 @@ resource "yandex_alb_virtual_host" "web_virtual_host" {
     name = "web-route"
     http_route {
       http_route_action {
-        backend_group_id = yandex_lb_target_group.web_alb_backend_group.id
+        backend_group_id = yandex_alb_backend_group.web_alb_backend_group.id
         timeout          = "5s"
       }
     }
   }
-  depends_on = [yandex_lb_target_group.web_alb_backend_group]
+  depends_on = [yandex_alb_target_group.web_alb_backend_group]
 }
 
 resource "yandex_alb_load_balancer" "web_l7_bal" {
@@ -389,7 +389,6 @@ resource "yandex_alb_load_balancer" "web_l7_bal" {
   log_options {
     log_group_id = "<идентификатор_лог-группы>"
     discard_rule {
-      http_codes          = ["100-599"]
       http_code_intervals = ["1XX-5XX"]
       grpc_codes          = ["NOT_FOUND", "RESOURCE_EXHAUSTED"]
       discard_percent     = 75
