@@ -195,19 +195,18 @@ resource "yandex_lb_network_load_balancer" "l4_web" {
 
   attached_target_group {
     target_group_id = yandex_lb_target_group.web_backend_group.id
-  }
-
-  allocation_policy {
-    zone_ids = ["ru-central1-a", "ru-central1-b"]
-  }
-
-  healthcheck {
+    healthcheck {
       name = "http"
       http_options {
         port = 80
         path = "/"
       }
     }
+  }
+
+  allocation_policy {
+    zone_ids = ["ru-central1-a", "ru-central1-b"]
+   }
   }
 
 # HTTP Router Configuration
