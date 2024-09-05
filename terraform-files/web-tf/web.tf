@@ -206,7 +206,9 @@ resource "yandex_compute_instance" "bastion" {
   }  
 
   metadata = {
-    user-data = templatefile("./meta_bastion.yml", {})
+    user-data = templatefile("./meta_bastion.yml", {
+      private_key = file("/root/.ssh/id_rsa")
+    })
     serial-port-enable = "1"
   }
 }
@@ -233,7 +235,9 @@ resource "yandex_compute_instance" "web1" {
   }
 
   metadata = {
-    user-data = templatefile("./meta.yml", {})
+    user-data = templatefile("./meta.yml", {
+      private_key = file("/root/.ssh/id_rsa")
+    })
     serial-port-enable = "1"
   }
 }
@@ -260,7 +264,9 @@ resource "yandex_compute_instance" "web2" {
   }
 
   metadata = {
-    user-data = templatefile("./meta.yml", {})
+    user-data = templatefile("./meta.yml", {
+      private_key = file("/root/.ssh/id_rsa")
+    })
     serial-port-enable = "1"
   }
 }
