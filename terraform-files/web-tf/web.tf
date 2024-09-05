@@ -13,6 +13,7 @@ provider "yandex" {
   folder_id = var.folder_bastion
 }
 
+# Internal network
 resource "yandex_vpc_network" "bastion_internal" {
   name        = var.network_bastion_internal
   description = "Internal bastion network"
@@ -37,6 +38,7 @@ resource "yandex_vpc_route_table" "web_routing_table" {
   }
 }
 
+# DNS zone
 resource "yandex_dns_zone" "internal_cloud" {
   name             = "internal-cloud"
   description      = "Internal DNS for cloud"
@@ -48,8 +50,7 @@ resource "yandex_dns_zone" "internal_cloud" {
   }
 }
 
-# 2. DNS A Records
-
+# DNS A Records
 resource "yandex_dns_recordset" "web1" {
   zone_id = yandex_dns_zone.internal_cloud.id
   name    = "web1.internal-cloud."
@@ -74,6 +75,7 @@ resource "yandex_dns_recordset" "bastion" {
   data    = ["172.16.0.254"]
 }
 
+# Internal subnets
 resource "yandex_vpc_subnet" "bastion_internal_a" {
   name           = var.subnet_bastion_internal_a
   zone           = "ru-central1-a"
@@ -88,11 +90,13 @@ resource "yandex_vpc_subnet" "bastion_internal_b" {
   v4_cidr_blocks = ["172.17.0.0/24"]
 }
 
+# External network
 resource "yandex_vpc_network" "bastion_external" {
   name        = var.network_bastion_external
   description = "External bastion network"
 }
 
+# External subnet
 resource "yandex_vpc_subnet" "bastion_external_a" {
   name           = var.subnet_bastion_external_a
   zone           = "ru-central1-a"
@@ -100,6 +104,7 @@ resource "yandex_vpc_subnet" "bastion_external_a" {
   v4_cidr_blocks = ["172.16.1.0/24"]
 }
 
+# Internal bastion Security Group
 resource "yandex_vpc_security_group" "internal_bastion_sg" {
   name        = var.sg_internal_bastion
   network_id  = yandex_vpc_network.bastion_internal.id
@@ -151,6 +156,7 @@ resource "yandex_vpc_security_group" "internal_bastion_sg" {
   }
 }
 
+# External bastion Security Group
 resource "yandex_vpc_security_group" "external_bastion_sg" {
   name        = var.sg_external_bastion
   network_id  = yandex_vpc_network.bastion_external.id
@@ -172,6 +178,7 @@ resource "yandex_vpc_security_group" "external_bastion_sg" {
   }
 }
 
+# Bastion deploy
 resource "yandex_compute_instance" "bastion" {
   name       = "bastion"
   zone       = "ru-central1-a"
@@ -211,6 +218,7 @@ resource "yandex_compute_instance" "bastion" {
   }
 }
 
+# Web1 deploy
 resource "yandex_compute_instance" "web1" {
   name        = "web1"
   zone        = "ru-central1-a"
@@ -240,6 +248,7 @@ resource "yandex_compute_instance" "web1" {
   }
 }
 
+# Web2 deploy
 resource "yandex_compute_instance" "web2" {
   name        = "web2"
   platform_id = "standard-v1"
@@ -336,6 +345,7 @@ resource "yandex_alb_virtual_host" "web_virtual_host" {
   depends_on = [yandex_alb_backend_group.web_alb_backend_group]
 }
 
+# ALB deploy
 resource "yandex_alb_load_balancer" "web_l7_bal" {
   name        = "web-l7-bal"
   network_id  = yandex_vpc_network.bastion_internal.id
