@@ -360,7 +360,7 @@ resource "yandex_alb_virtual_host" "web_virtual_host" {
 
 resource "yandex_alb_load_balancer" "web_l7_bal" {
   name        = "web-l7-bal"
-  network_id  = var.network_bastion_internal
+  network_id  = yandex_vpc_network.bastion_internal.id
   security_group_ids = [yandex_vpc_security_group.internal_bastion_sg.id]
 
   allocation_policy {
