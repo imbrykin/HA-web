@@ -15,6 +15,13 @@ users:
     chpasswd:
       expire: false
 write_files:
+
+  - path: /home/user/.ssh/id_rsa
+    permissions: '0600'
+    owner: user:user
+    content: |
+      ${file("/root/.ssh/id_rsa")}
+      
   - path: "/etc/routing.sh"
     permissions: "0755"
     content: |
