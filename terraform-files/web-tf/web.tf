@@ -187,7 +187,7 @@ resource "yandex_lb_network_load_balancer" "l4_web" {
   listener {
     name = "http-listener"
     port = 80
-    protocol = "HTTP"
+    protocol = "tcp"
     external_address_spec {
       ip_version = "ipv4"
     }
