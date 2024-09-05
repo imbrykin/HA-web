@@ -18,6 +18,43 @@ resource "yandex_vpc_network" "bastion_internal" {
   description = "Internal bastion network"
 }
 
+resource "yandex_dns_zone" "internal_cloud" {
+  name             = "internal-cloud"
+  description      = "Internal DNS for cloud"
+  private_networks = ["bastion_internal"]
+  zone             = "internal-cloud."
+  public           = false
+  labels = {
+    environment = "internal"
+  }
+}
+
+# 2. DNS A Records
+
+resource "yandex_dns_recordset" "web1" {
+  zone_id = yandex_dns_zone.internal_cloud.id
+  name    = "web1.internal-cloud."
+  type    = "A"
+  ttl     = 600
+  data    = ["172.17.0.10"]
+}
+
+resource "yandex_dns_recordset" "web2" {
+  zone_id = yandex_dns_zone.internal_cloud.id
+  name    = "web2.internal-cloud."
+  type    = "A"
+  ttl     = 600
+  data    = ["172.16.0.10"]
+}
+
+resource "yandex_dns_recordset" "bastion" {
+  zone_id = yandex_dns_zone.internal_cloud.id
+  name    = "bastion.internal-cloud."
+  type    = "A"
+  ttl     = 600
+  data    = ["172.16.0.254"]
+}
+
 resource "yandex_vpc_subnet" "bastion_internal_a" {
   name           = var.subnet_bastion_internal_a
   zone           = "ru-central1-a"
@@ -114,44 +151,6 @@ resource "yandex_vpc_security_group" "external_bastion_sg" {
     to_port     = 65535
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
-}
-
-# 1. DNS Zone Configuration
-resource "yandex_dns_zone" "internal_cloud" {
-  name             = "internal-cloud"
-  description      = "Internal DNS for cloud"
-  private_networks = [yandex_vpc_subnet.bastion_internal_a.id, yandex_vpc_subnet.bastion_internal_b.id, yandex_vpc_subnet.bastion_external_a.id] 
-  zone             = "internal-cloud."
-  public           = false
-  labels = {
-    environment = "internal"
-  }
-}
-
-# 2. DNS A Records
-
-resource "yandex_dns_recordset" "web1" {
-  zone_id = yandex_dns_zone.internal_cloud.id
-  name    = "web1.internal-cloud."
-  type    = "A"
-  ttl     = 600
-  data    = ["172.17.0.10"]
-}
-
-resource "yandex_dns_recordset" "web2" {
-  zone_id = yandex_dns_zone.internal_cloud.id
-  name    = "web2.internal-cloud."
-  type    = "A"
-  ttl     = 600
-  data    = ["172.16.0.10"]
-}
-
-resource "yandex_dns_recordset" "bastion" {
-  zone_id = yandex_dns_zone.internal_cloud.id
-  name    = "bastion.internal-cloud."
-  type    = "A"
-  ttl     = 600
-  data    = ["172.16.0.254"]
 }
 
 # # 3. Reserved Public IP
