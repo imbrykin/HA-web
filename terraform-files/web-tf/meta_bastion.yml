@@ -1,0 +1,56 @@
+#cloud-config
+datasource:
+  Ec2:
+    strict_id: false
+ssh_pwauth: no
+users:
+  - name: user
+    ssh_pwauth: no
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    lock_passwd: false
+    passwd: "$6$rounds=4096$4quHiiH6WjYGNlmi$5cLcAZyc0dE0nUNWegbV7dji2hk90q9v3oah8pFZyCx8B9bqgsUpSZAPnveknNgFdyxO5H9EHoF1G6z.nmB7h0"
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwUweG4AAWSkzixxuXdWaTsZv24jr/kBjFYrIhPe3mNrbLd8mC/eoEKEP3nhxNP+JLklvSr2YZUl2Ywh8/3xApW1e97p3qbC2AqRG17vMyPyzogLeSECRYzN8C+gO2kHi5OGXjnvjR4TjyZj2+a1fQYlylhURxOTNa8YgRC96hgT0Fn+yOJtxf7qMInVa6ZZ25OFCNCmRFo6WQdV2JkNlfHE7BmD1WGz1lHUPQlMob8z7nWbIDo1gYcFJjOj0ROjCPltIQFwR7ZTrvtujq1KtbCHbxFnycRS7LexmDGCDdzMRzMNotAxti3sAjIbHySh7KvgClUOV6cVqcXxGyR0kZ brykinivan@yandex.cloud
+    chpasswd:
+      expire: false
+write_files:
+  - path: "/etc/routing.sh"
+    permissions: "0755"
+    content: |
+      #!/bin/bash
+      ip route del default via 172.16.0.1 dev eth0
+      ip route add 172.16.0.0/24 dev eth0 src 172.16.0.254 table eth0_table
+      ip route add 172.16.1.0/24 dev eth0 src 172.16.0.254 table eth0_table 
+      ip route add 0.0.0.0/0 via 172.16.1.1 dev eth1 metric 100 table eth1_table
+      ip rule add from 172.16.1.254 table eth1_table
+      ip rule add from 172.16.0.254 table eth0_table
+
+  - path: "/etc/iproute2/rt_tables"
+    append: true
+    permissions: "0644"
+    content: |
+      1 eth0_table
+      2 eth1_table
+
+  - path: "/etc/systemd/system/routing.service"
+    permissions: "0644"
+    content: |
+      [Unit]
+      Description=Custom Routing Rules
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/bin/bash /etc/routing.sh
+      RemainAfterExit=yes
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - [ chmod, +x, /etc/routing.sh ]
+  - [ systemctl, daemon-reload ]
+  - [ systemctl, enable, routing.service ]
+  - [ systemctl, start, routing.service ]

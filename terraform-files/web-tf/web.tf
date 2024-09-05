@@ -270,7 +270,7 @@ resource "yandex_compute_instance" "bastion" {
   }  
 
   metadata = {
-    user-data = templatefile("./meta.yml", {})
+    user-data = templatefile("./meta_bastion.yml", {})
     serial-port-enable = "1"
   }
 }
