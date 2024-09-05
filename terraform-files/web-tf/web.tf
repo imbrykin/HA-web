@@ -355,7 +355,7 @@ resource "yandex_alb_virtual_host" "web_virtual_host" {
       }
     }
   }
-  depends_on = [yandex_alb_target_group.web_alb_backend_group]
+  depends_on = [yandex_alb_backend_group.web_alb_backend_group]
 }
 
 resource "yandex_alb_load_balancer" "web_l7_bal" {
