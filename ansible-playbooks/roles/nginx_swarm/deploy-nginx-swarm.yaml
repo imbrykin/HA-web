@@ -17,7 +17,19 @@
       when: nginx_service_check.stdout != ""
       ignore_errors: false
 
-- name: Deploy nginx on all Docker Swarm nodes
+    - name: Create nginx service in Docker Swarm (on manager)
+      command: >
+        docker service create 
+        --name nginx 
+        --mode global 
+        --publish published=80,target=80
+        --publish published=443,target=443 
+        --mount type=bind,src=/etc/nginx.files/index.html,dst=/usr/share/nginx/html/index.html,readonly 
+        --mount type=bind,src=/etc/nginx.files/styles.css,dst=/usr/share/nginx/html/styles.css,readonly
+        nginx:latest
+      when: nginx_service_check.stdout != "" or nginx_service_check.stdout == ""
+
+- name: Deploy nginx files on all Docker Swarm nodes
   hosts: docker_swarm_manager,docker_swarm_workers
   become: yes
   tasks:
@@ -46,15 +58,3 @@
         src: '/HA-web/ansible-playbooks/templates/nginx.files/styles.css'
         dest: "/etc/nginx.files/styles.css"
         mode: '0644'
-
-    - name: Create nginx service in Docker Swarm on all nodes if it was removed
-      command: >
-        docker service create 
-        --name nginx 
-        --mode global 
-        --publish published=80,target=80
-        --publish published=443,target=443 
-        --mount type=bind,src=/etc/nginx.files/index.html,dst=/usr/share/nginx/html/index.html,readonly 
-        --mount type=bind,src=/etc/nginx.files/styles.css,dst=/usr/share/nginx/html/styles.css,readonly
-        nginx:latest
-      when: hostvars['web1.internal-cloud'].nginx_service_check.stdout != ""
