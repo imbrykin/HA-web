@@ -43,14 +43,10 @@
   become: yes
   tasks:
     - name: Check if node is part of a swarm
-      hosts: docker_swarm_workers
-      become: yes
-      tasks:
-        - name: Run check swarm status command from template
-          command: "{{ lookup('template', 'ansible-playbooks/templates/docker/check_swarm_status.j2') }}"
-          register: swarm_status
-          ignore_errors: yes
-          failed_when: false
+      command: "{{ lookup('template', 'ansible-playbooks/templates/docker/check_swarm_status.j2') }}"
+      register: swarm_status
+      ignore_errors: yes
+      failed_when: false
 
     - name: Initialize Docker Swarm using predefined IP
       command: docker swarm init --advertise-addr {{ swarm_manager_ip }}
@@ -67,6 +63,16 @@
       set_fact:
         swarm_worker_token: "{{ worker_token.stdout }}"
       when: worker_token.stdout is defined
+
+- name: Join Swarm as worker
+  hosts: docker_swarm_workers
+  become: yes
+  tasks:
+    - name: Check if node is part of a swarm
+      command: "{{ lookup('template', 'ansible-playbooks/templates/docker/check_swarm_status.j2') }}"
+      register: swarm_status
+      ignore_errors: yes
+      failed_when: false
 
     - name: Join Swarm cluster
       command: "{{ lookup('template', 'ansible-playbooks/templates/docker/join_swarm.j2') }}"
