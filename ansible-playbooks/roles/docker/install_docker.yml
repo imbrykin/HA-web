@@ -69,7 +69,7 @@
   become: yes
   tasks:
     - name: Check if node is part of a swarm
-      command: docker info --format '{{ .Swarm.LocalNodeState }}'
+      command: "{{ lookup('template', '/HA-web/ansible-playbooks/templates/docker/check_swarm_status.j2') }}"
       register: swarm_status
       ignore_errors: yes
       failed_when: false
