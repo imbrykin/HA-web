@@ -1,6 +1,5 @@
 ---
-- name: Deploy Zabbix Server and Web in Docker Containers
-  hosts: monitoring
+- name: Install and configure Zabbix
   become: yes
   vars_prompt:
     - name: "mysql_root_password"
@@ -12,53 +11,123 @@
       private: yes
 
   tasks:
-    - name: Install Docker
-      apt:
-        name: docker.io
-        state: present
-        update_cache: yes
 
-    - name: Pull Zabbix server image
-      command: docker pull zabbix/zabbix-server-mysql:latest
+  - name: Setup Zabbix Server and Web Interface on Zabbix Host
+    hosts: monitoring
+    tasks:
+      - name: Check if containerd.io is installed
+        shell: dpkg -l | grep containerd.io
+        register: containerd_installed
+        ignore_errors: true
 
-    - name: Pull MySQL image
-      command: docker pull mysql:5.7
+      - name: Remove containerd.io if installed
+        apt:
+          name: containerd.io
+          state: absent
+        when: containerd_installed.rc == 0
 
-    - name: Pull Zabbix web interface image
-      command: docker pull zabbix/zabbix-web-nginx-mysql:latest
+      - name: Update apt cache
+        apt:
+          update_cache: yes
 
-    - name: Start MySQL container
-      command: >
-        docker run -d --name zabbix-mysql
-        -e MYSQL_DATABASE=zabbix
-        -e MYSQL_USER=zabbix
-        -e MYSQL_PASSWORD={{ mysql_zabbix_password }}
-        -e MYSQL_ROOT_PASSWORD={{ mysql_root_password }}
-        -v /var/lib/mysql:/var/lib/mysql
-        mysql:5.7
-      args:
-        creates: /var/lib/mysql
+      - name: Install Docker if not already installed
+        apt:
+          name: docker.io
+          state: present
 
-    - name: Start Zabbix Server container
-      command: >
-        docker run -d --name zabbix-server
-        --link zabbix-mysql:mysql
-        -e DB_SERVER_HOST="mysql"
-        -e MYSQL_USER="zabbix"
-        -e MYSQL_PASSWORD={{ mysql_zabbix_password }}
-        -p 10051:10051
-        zabbix/zabbix-server-mysql:latest
+      - name: Pull Zabbix server image
+        command: docker pull zabbix/zabbix-server-mysql:latest
 
-    - name: Start Zabbix Web interface container
-      command: >
-        docker run -d --name zabbix-web
-        --link zabbix-server:zabbix-server
-        --link zabbix-mysql:mysql
-        -e DB_SERVER_HOST="mysql"
-        -e MYSQL_USER="zabbix"
-        -e MYSQL_PASSWORD={{ mysql_zabbix_password }}
-        -p 80:8080
-        zabbix/zabbix-web-nginx-mysql:latest
+      - name: Pull MySQL image
+        command: docker pull mysql:5.7
 
-    - name: Ensure Zabbix Server and Web are running
-      command: docker ps
+      - name: Pull Zabbix web interface image
+        command: docker pull zabbix/zabbix-web-nginx-mysql:latest
+
+      - name: Start MySQL container
+        command: >
+          docker run -d --name zabbix-mysql
+          -e MYSQL_DATABASE=zabbix
+          -e MYSQL_USER=zabbix
+          -e MYSQL_PASSWORD={{ mysql_zabbix_password }}
+          -e MYSQL_ROOT_PASSWORD={{ mysql_root_password }}
+          -v /var/lib/mysql:/var/lib/mysql
+          mysql:5.7
+        args:
+          creates: /var/lib/mysql
+
+      - name: Start Zabbix Server container
+        command: >
+          docker run -d --name zabbix-server
+          --link zabbix-mysql:mysql
+          -e DB_SERVER_HOST="mysql"
+          -e MYSQL_USER="zabbix"
+          -e MYSQL_PASSWORD={{ mysql_zabbix_password }}
+          -p 10051:10051
+          zabbix/zabbix-server-mysql:latest
+
+      - name: Start Zabbix Web interface container
+        command: >
+          docker run -d --name zabbix-web
+          --link zabbix-server:zabbix-server
+          --link zabbix-mysql:mysql
+          -e DB_SERVER_HOST="mysql"
+          -e MYSQL_USER="zabbix"
+          -e MYSQL_PASSWORD={{ mysql_zabbix_password }}
+          -p 80:8080
+          zabbix/zabbix-web-nginx-mysql:latest
+
+  - name: Install and configure Zabbix Agent on other nodes
+    hosts: docker_swarm_manager,docker_swarm_workers,elk
+    tasks:
+      - name: Add Zabbix repository
+        apt_repository:
+          repo: "deb http://repo.zabbix.com/zabbix/6.0/ubuntu $(lsb_release -cs) main"
+          state: present
+          filename: zabbix
+
+      - name: Add Zabbix public GPG key
+        apt_key:
+          url: "https://repo.zabbix.com/zabbix-official-repo.key"
+          state: present
+
+      - name: Update apt cache
+        apt:
+          update_cache: yes
+
+      - name: Install Zabbix Agent
+        apt:
+          name: zabbix-agent
+          state: present
+
+      - name: Configure Zabbix Agent to point to Zabbix server
+        lineinfile:
+          path: /etc/zabbix/zabbix_agentd.conf
+          regexp: '^Server='
+          line: 'Server=10.10.1.100'
+          backup: yes
+
+      - name: Configure Zabbix Agent for active checks to Zabbix server
+        lineinfile:
+          path: /etc/zabbix/zabbix_agentd.conf
+          regexp: '^ServerActive='
+          line: 'ServerActive=10.10.1.100'
+          backup: yes
+
+      - name: Set the hostname for Zabbix Agent
+        lineinfile:
+          path: /etc/zabbix/zabbix_agentd.conf
+          regexp: '^Hostname='
+          line: 'Hostname={{ inventory_hostname }}'
+          backup: yes
+
+      - name: Enable and start Zabbix Agent service
+        systemd:
+          name: zabbix-agent
+          enabled: yes
+          state: started
+
+      - name: Restart Zabbix Agent to apply configuration changes
+        service:
+          name: zabbix-agent
+          state: restarted
