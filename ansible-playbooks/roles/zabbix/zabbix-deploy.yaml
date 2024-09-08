@@ -63,7 +63,12 @@
         creates: /var/lib/mysql
 
     - name: Wait for MySQL to be ready
-      command: sleep 10
+      command: sleep 20
+
+    - name: Check if MySQL container is running
+      shell: docker inspect --format="{{ '{{' }}.State.Running{{ '}}' }}" zabbix-mysql
+      register: mysql_running
+      failed_when: mysql_running.stdout != "true"
 
     - name: Check and remove existing Zabbix containers using template
       template:
