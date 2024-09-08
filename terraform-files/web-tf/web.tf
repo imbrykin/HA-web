@@ -359,7 +359,7 @@ resource "yandex_compute_snapshot_schedule" "web2_snapshot" {
 
 resource "yandex_compute_instance" "zabbix" {
   name        = "zabbix"
-  zone        = "ru-central1-b"
+  zone        = "ru-central1-a"
   hostname    = "zabbix"
   resources {
     cores  = 2
@@ -414,7 +414,7 @@ resource "yandex_compute_snapshot_schedule" "zabbix_snapshot" {
 # Kibana deploy
 resource "yandex_compute_instance" "kibana" {
   name        = "kibana"
-  zone        = "ru-central1-b"
+  zone        = "ru-central1-a"
   hostname    = "kibana"
   resources {
     cores  = 2
