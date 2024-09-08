@@ -187,10 +187,24 @@ resource "yandex_vpc_security_group" "internal_bastion_sg" {
   }
 
   ingress {
-    description       = "SSH-in"
+    description       = "Docker swarm"
     protocol          = "TCP"
     port              = 2377
     predefined_target = "self_security_group"
+  }
+  
+  ingress {
+    description       = "Zabbix-web"
+    protocol          = "TCP"
+    port              = 10050
+    predefined_target = "self_security_group"
+  }
+
+  ingress {
+    description       = "Zabbix-agent"
+    protocol          = "TCP"
+    port              = 10051
+    v4_cidr_blocks    = ["0.0.0.0/0"]
   }
 
   egress {
