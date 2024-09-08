@@ -56,7 +56,7 @@ resource "yandex_dns_recordset" "web1" {
   name    = "web1.internal-cloud."
   type    = "A"
   ttl     = 600
-  data    = ["172.16.0.10"]
+  data    = ["10.10.0.10"]
 }
 
 resource "yandex_dns_recordset" "web2" {
@@ -64,7 +64,7 @@ resource "yandex_dns_recordset" "web2" {
   name    = "web2.internal-cloud."
   type    = "A"
   ttl     = 600
-  data    = ["172.17.0.10"]
+  data    = ["10.11.0.10"]
 }
 
 resource "yandex_dns_recordset" "web3" {
@@ -72,7 +72,7 @@ resource "yandex_dns_recordset" "web3" {
   name    = "web3.internal-cloud."
   type    = "A"
   ttl     = 600
-  data    = ["172.18.0.10"]
+  data    = ["10.12.0.10"]
 }
 
 resource "yandex_dns_recordset" "bastion" {
@@ -80,7 +80,7 @@ resource "yandex_dns_recordset" "bastion" {
   name    = "bastion.internal-cloud."
   type    = "A"
   ttl     = 600
-  data    = ["172.16.0.254"]
+  data    = ["10.10.0.254"]
 }
 
 resource "yandex_dns_recordset" "zabbix" {
@@ -88,7 +88,7 @@ resource "yandex_dns_recordset" "zabbix" {
   name    = "zabbix.internal-cloud."
   type    = "A"
   ttl     = 600
-  data    = ["172.16.0.100"]
+  data    = ["10.10.0.100"]
 }
 
 resource "yandex_dns_recordset" "kibana" {
@@ -96,7 +96,7 @@ resource "yandex_dns_recordset" "kibana" {
   name    = "kibana.internal-cloud."
   type    = "A"
   ttl     = 600
-  data    = ["172.16.0.200"]
+  data    = ["10.10.0.200"]
 }
 
 resource "yandex_dns_recordset" "elastic" {
@@ -104,7 +104,7 @@ resource "yandex_dns_recordset" "elastic" {
   name    = "elastic.internal-cloud."
   type    = "A"
   ttl     = 600
-  data    = ["172.17.0.100"]
+  data    = ["10.10.0.100"]
 }
 
 # Internal subnets
@@ -112,21 +112,21 @@ resource "yandex_vpc_subnet" "bastion_internal_a" {
   name           = var.subnet_bastion_internal_a
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.bastion_internal.id
-  v4_cidr_blocks = ["172.16.0.0/24"]
+  v4_cidr_blocks = ["10.10.0.0/24"]
 }
 
 resource "yandex_vpc_subnet" "bastion_internal_b" {
   name           = var.subnet_bastion_internal_b
   zone           = "ru-central1-b"
   network_id     = yandex_vpc_network.bastion_internal.id
-  v4_cidr_blocks = ["172.17.0.0/24"]
+  v4_cidr_blocks = ["10.11.0.0/24"]
 }
 
 resource "yandex_vpc_subnet" "bastion_internal_d" {
   name           = var.subnet_bastion_internal_d
   zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.bastion_internal.id
-  v4_cidr_blocks = ["172.18.0.0/24"]
+  v4_cidr_blocks = ["10.12.0.0/24"]
 }
 
 # External network
@@ -140,7 +140,7 @@ resource "yandex_vpc_subnet" "bastion_external_a" {
   name           = var.subnet_bastion_external_a
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.bastion_external.id
-  v4_cidr_blocks = ["172.16.1.0/24"]
+  v4_cidr_blocks = ["10.10.1.0/24"]
 }
 
 # Internal bastion Security Group
@@ -247,14 +247,14 @@ resource "yandex_compute_instance" "bastion" {
     subnet_id           = yandex_vpc_subnet.bastion_internal_a.id
     nat                 = false
     security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
-    ip_address          = "172.16.0.254"
+    ip_address          = "10.10.0.254"
   }
 
   network_interface {
     subnet_id           = yandex_vpc_subnet.bastion_external_a.id
     nat                 = true
     security_group_ids  = [yandex_vpc_security_group.external_bastion_sg.id]
-    ip_address          = "172.16.1.254"
+    ip_address          = "10.10.1.254"
   }  
 
   metadata = {
@@ -303,7 +303,7 @@ resource "yandex_compute_instance" "web1" {
     subnet_id          = yandex_vpc_subnet.bastion_internal_a.id
     security_group_ids = [yandex_vpc_security_group.internal_bastion_sg.id]
     nat                 = false
-    ip_address          = "172.16.0.10"
+    ip_address          = "10.10.0.10"
   }
 
   metadata = {
@@ -350,7 +350,7 @@ resource "yandex_compute_instance" "web2" {
     subnet_id           = yandex_vpc_subnet.bastion_internal_b.id
     nat                 = false
     security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
-    ip_address          = "172.17.0.10"
+    ip_address          = "10.11.0.10"
   }
 
   metadata = {
@@ -398,7 +398,7 @@ resource "yandex_compute_instance" "web3" {
     subnet_id           = yandex_vpc_subnet.bastion_internal_d.id
     nat                 = false
     security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
-    ip_address          = "172.18.0.10"
+    ip_address          = "10.12.0.10"
   }
 
   metadata = {
@@ -447,14 +447,14 @@ resource "yandex_compute_instance" "zabbix" {
     subnet_id           = yandex_vpc_subnet.bastion_internal_a.id
     nat                 = false
     security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
-    ip_address          = "172.16.0.100"
+    ip_address          = "10.10.0.100"
   }
 
   network_interface {
     subnet_id           = yandex_vpc_subnet.bastion_external_a.id
     nat                 = true
     security_group_ids  = [yandex_vpc_security_group.external_bastion_sg.id]
-    ip_address          = "172.16.1.100"
+    ip_address          = "10.10.1.100"
   }  
 
   metadata = {
@@ -502,14 +502,14 @@ resource "yandex_compute_instance" "kibana" {
     subnet_id           = yandex_vpc_subnet.bastion_internal_a.id
     nat                 = false
     security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
-    ip_address          = "172.16.0.200"
+    ip_address          = "10.10.0.200"
   }
 
   network_interface {
     subnet_id           = yandex_vpc_subnet.bastion_external_a.id
     nat                 = true
     security_group_ids  = [yandex_vpc_security_group.external_bastion_sg.id]
-    ip_address          = "172.16.1.200"
+    ip_address          = "10.10.1.200"
   }  
 
   metadata = {
@@ -555,7 +555,7 @@ resource "yandex_compute_instance" "elastic" {
     subnet_id           = yandex_vpc_subnet.bastion_internal_b.id
     nat                 = false
     security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
-    ip_address          = "172.17.0.100"
+    ip_address          = "10.11.0.100"
   }
 
   metadata = {
@@ -589,17 +589,17 @@ resource "yandex_alb_target_group" "web_alb_target_group" {
 
   target {
     subnet_id    = yandex_vpc_subnet.bastion_internal_a.id
-    ip_address   = "172.16.0.10"
+    ip_address   = "10.10.0.10"
   }
 
   target {
     subnet_id    = yandex_vpc_subnet.bastion_internal_b.id
-    ip_address   = "172.17.0.10"
+    ip_address   = "10.11.0.10"
   }
 
     target {
     subnet_id    = yandex_vpc_subnet.bastion_internal_d.id
-    ip_address   = "172.18.0.10"
+    ip_address   = "10.12.0.10"
   }
 
 }
