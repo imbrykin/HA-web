@@ -1,12 +1,30 @@
 ---
 - name: Deploy nginx on Docker Swarm with a custom webpage
+  hosts: docker_swarm_manager
+  become: yes
+  tasks:
+    - name: Pull nginx image on manager
+      command: docker pull nginx:latest
+
+    - name: Check if nginx service exists on manager
+      command: docker service ls --filter name=nginx -q
+      register: nginx_service_check
+      failed_when: false
+      changed_when: false
+
+    - name: Remove existing nginx service if it exists on manager
+      command: docker service rm nginx
+      when: nginx_service_check.stdout != ""
+      ignore_errors: false
+
+- name: Deploy nginx on all Docker Swarm nodes
   hosts: docker_swarm_manager,docker_swarm_workers
   become: yes
   tasks:
-    - name: Pull nginx image
+    - name: Pull nginx image on all nodes
       command: docker pull nginx:latest
 
-    - name: Get local IP
+    - name: Get local IP on all nodes
       shell: ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
       register: local_ip
       changed_when: false
@@ -29,14 +47,7 @@
         dest: "/etc/nginx.files/styles.css"
         mode: '0644'
 
-    - name: Check if nginx service exists
-      command: docker service ls --filter name=nginx -q
-      register: nginx_service_check
-      failed_when: false
-      changed_when: false
-      when: "'docker_swarm_manager' in group_names"
-
-    - name: Create nginx service in Docker Swarm
+    - name: Create nginx service in Docker Swarm on all nodes if it was removed
       command: >
         docker service create 
         --name nginx 
@@ -46,4 +57,4 @@
         --mount type=bind,src=/etc/nginx.files/index.html,dst=/usr/share/nginx/html/index.html,readonly 
         --mount type=bind,src=/etc/nginx.files/styles.css,dst=/usr/share/nginx/html/styles.css,readonly
         nginx:latest
-      when: "'docker_swarm_manager' in group_names and not nginx_service_check.stdout"
+      when: hostvars['web1.internal-cloud'].nginx_service_check.stdout != ""
