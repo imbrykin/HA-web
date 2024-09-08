@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Check if MySQL container exists
+mysql_container=$(docker ps -a --filter "name=zabbix-mysql" --format "{{ '{{' }}.ID{{ '}}' }}")
+
+# Remove MySQL container if exists
+if [[ -n "$mysql_container" ]]; then
+  docker rm -f $mysql_container
+fi

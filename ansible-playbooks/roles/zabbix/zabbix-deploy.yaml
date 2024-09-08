@@ -41,14 +41,14 @@
     - name: Pull Zabbix web interface image
       command: docker pull zabbix/zabbix-web-nginx-mysql:latest
 
-    - name: Check if MySQL container exists
-      shell: docker ps -a --filter "name=zabbix-mysql" --format "{{.ID}}"
-      register: mysql_container
-      changed_when: false
+    - name: Check and remove existing MySQL container using template
+      template:
+        src: '/HA-web/ansible-playbooks/templates/zabbix/remove_mysql.j2'
+        dest: /tmp/remove_mysql.sh
+        mode: '0755'
 
-    - name: Remove existing MySQL container if it exists
-      command: docker rm -f {{ mysql_container.stdout }}
-      when: mysql_container.stdout != ""
+    - name: Execute the script to remove MySQL container
+      command: /tmp/remove_mysql.sh
 
     - name: Start MySQL container
       command: >
