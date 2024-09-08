@@ -42,10 +42,19 @@
   hosts: docker_swarm_manager
   become: yes
   tasks:
-    - name: Initialize Swarm
-      command: docker swarm init --advertise-addr {{ ansible_host }}
+    - name: Gather network facts
+      ansible.builtin.setup:
+        gather_subset:
+          - network
+
+    - name: Get IP address of eth0
+      set_fact:
+        manager_ip: "{{ ansible_facts['ansible_interface']['eth0']['ipv4']['address'] }}"
+
+    - name: Initialize Docker Swarm using IP from eth0
+      command: docker swarm init --advertise-addr {{ manager_ip }}
+      when: manager_ip is defined
       ignore_errors: no
-      register: swarm_result
 
     - name: Get Swarm join token for workers
       command: docker swarm join-token -q worker
