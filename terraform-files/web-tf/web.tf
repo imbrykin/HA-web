@@ -591,7 +591,7 @@ resource "yandex_alb_target_group" "web_alb_target_group" {
   }
 
     target {
-    subnet_id    = yandex_vpc_subnet.bastion_internal_b.id
+    subnet_id    = yandex_vpc_subnet.bastion_internal_d.id
     ip_address   = "172.18.0.10"
   }
 
