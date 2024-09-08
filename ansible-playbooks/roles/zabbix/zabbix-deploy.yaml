@@ -12,22 +12,23 @@
       private: yes
 
   tasks:
-    - name: Install Docker
+    - name: Gather installed package facts
+      package_facts:
+        manager: apt
+
+    - name: Install Docker if not already installed
       apt:
         name: docker.io
         state: present
         update_cache: yes
+      when: "'docker.io' not in ansible_facts.packages"
 
-    - name: Pull Zabbix server image
-      command: docker pull zabbix/zabbix-server-mysql:latest
+    - name: Check if Zabbix MySQL container is running
+      shell: docker ps --filter "name=zabbix-mysql" --format "{{.Names}}"
+      register: zabbix_mysql_container
+      changed_when: false
 
-    - name: Pull MySQL image
-      command: docker pull mysql:5.7
-
-    - name: Pull Zabbix web interface image
-      command: docker pull zabbix/zabbix-web-nginx-mysql:latest
-
-    - name: Start MySQL container
+    - name: Start MySQL container if not running
       command: >
         docker run -d --name zabbix-mysql
         -e MYSQL_DATABASE=zabbix
@@ -36,10 +37,14 @@
         -e MYSQL_ROOT_PASSWORD={{ mysql_root_password }}
         -v /var/lib/mysql:/var/lib/mysql
         mysql:5.7
-      args:
-        creates: /var/lib/mysql
+      when: zabbix_mysql_container.stdout == ""
 
-    - name: Start Zabbix Server container
+    - name: Check if Zabbix Server container is running
+      shell: docker ps --filter "name=zabbix-server" --format "{{.Names}}"
+      register: zabbix_server_container
+      changed_when: false
+
+    - name: Start Zabbix Server container if not running
       command: >
         docker run -d --name zabbix-server
         --link zabbix-mysql:mysql
@@ -48,8 +53,14 @@
         -e MYSQL_PASSWORD={{ mysql_zabbix_password }}
         -p 10051:10051
         zabbix/zabbix-server-mysql:latest
+      when: zabbix_server_container.stdout == ""
 
-    - name: Start Zabbix Web interface container
+    - name: Check if Zabbix Web container is running
+      shell: docker ps --filter "name=zabbix-web" --format "{{.Names}}"
+      register: zabbix_web_container
+      changed_when: false
+
+    - name: Start Zabbix Web interface container if not running
       command: >
         docker run -d --name zabbix-web
         --link zabbix-server:zabbix-server
@@ -59,6 +70,7 @@
         -e MYSQL_PASSWORD={{ mysql_zabbix_password }}
         -p 80:8080
         zabbix/zabbix-web-nginx-mysql:latest
+      when: zabbix_web_container.stdout == ""
 
     - name: Install Zabbix Agent
       apt:
