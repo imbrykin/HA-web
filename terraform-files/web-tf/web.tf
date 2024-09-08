@@ -328,7 +328,7 @@ resource "yandex_compute_snapshot_schedule" "web1_snapshot" {
 resource "yandex_compute_instance" "web2" {
   name        = "web2"
   zone        = "ru-central1-b"
-  hostname    = "web1"
+  hostname    = "web2"
   resources {
     cores  = 2
     memory = 2
@@ -375,6 +375,7 @@ resource "yandex_compute_snapshot_schedule" "web2_snapshot" {
 resource "yandex_compute_instance" "web3" {
   name        = "web3"
   zone        = "ru-central1-d"
+  platform_id = "standard-v3"
   hostname    = "web3"
   resources {
     cores  = 2
