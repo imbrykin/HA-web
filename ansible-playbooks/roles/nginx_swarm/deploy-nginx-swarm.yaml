@@ -1,5 +1,5 @@
 ---
-- name: Deploy nginx on Docker Swarm
+- name: Deploy nginx on Docker Swarm with a custom webpage
   hosts: docker_swarm_manager,docker_swarm_workers
   become: yes
   tasks:
@@ -11,10 +11,22 @@
       register: local_ip
       changed_when: false
 
-    - name: Create custom index.html with local IP
+    - name: Create nginx directory in /root (if necessary)
+      file:
+        path: /etc/nginx.files
+        state: directory
+        mode: '0755'
+
+    - name: Create custom index.html with local IP from the template
+      template:
+        src: '/HA-web/ansible-playbooks/templates/docker/nginx.files/index.html.j2'
+        dest: "/etc/nginx.files/index.html"
+        mode: '0644'
+
+    - name: Copy CSS file from the repository to the nginx directory
       copy:
-        content: "{{ local_ip.stdout }}"
-        dest: "/tmp/index.html"
+        src: '/HA-web/ansible-playbooks/templates/docker/nginx.files/styles.css'
+        dest: "/etc/nginx.files/styles.css"
         mode: '0644'
 
     - name: Check if nginx service exists
@@ -31,6 +43,7 @@
         --mode global 
         --publish published=80,target=80
         --publish published=443,target=443 
-        --mount type=bind,src=/tmp/index.html,dst=/usr/share/nginx/html/index.html 
+        --mount type=bind,src=/etc/nginx.files/index.html,dst=/usr/share/nginx/html/index.html,readonly 
+        --mount type=bind,src=/etc/nginx.files/styles.css,dst=/usr/share/nginx/html/styles.css,readonly
         nginx:latest
       when: "'docker_swarm_manager' in group_names and not nginx_service_check.stdout"
