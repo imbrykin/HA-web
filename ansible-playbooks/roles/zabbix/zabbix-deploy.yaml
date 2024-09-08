@@ -41,6 +41,15 @@
     - name: Pull Zabbix web interface image
       command: docker pull zabbix/zabbix-web-nginx-mysql:latest
 
+    - name: Check if MySQL container exists
+      shell: docker ps -a --filter "name=zabbix-mysql" --format "{{.ID}}"
+      register: mysql_container
+      changed_when: false
+
+    - name: Remove existing MySQL container if it exists
+      command: docker rm -f {{ mysql_container.stdout }}
+      when: mysql_container.stdout != ""
+
     - name: Start MySQL container
       command: >
         docker run -d --name zabbix-mysql
@@ -52,6 +61,9 @@
         mysql:5.7
       args:
         creates: /var/lib/mysql
+
+    - name: Wait for MySQL to be ready
+      command: sleep 10
 
     - name: Check and remove existing Zabbix containers using template
       template:
