@@ -63,6 +63,7 @@
       set_fact:
         global_swarm_worker_token: "{{ worker_token.stdout }}"
       when: worker_token.stdout is defined
+      delegate_to: localhost
       delegate_facts: true
 
 - name: Join Swarm as worker
