@@ -256,7 +256,7 @@ resource "yandex_compute_snapshot_schedule" "bastion_snapshot" {
     description = "bastion-snapshot"
   }
 
-  disk_ids = [var.bastion_image_id]
+  disk_ids = [yandex_compute_instance.bastion.boot_disk[0].disk_id]
 }
 
 
@@ -305,7 +305,7 @@ resource "yandex_compute_snapshot_schedule" "web1_snapshot" {
     description = "web1-snapshot"
   }
 
-  disk_ids = [var.web_vm_image_id]
+  disk_ids = [yandex_compute_instance.web1.boot_disk[0].disk_id]
 }
 
 # Web2 deploy
@@ -352,7 +352,7 @@ resource "yandex_compute_snapshot_schedule" "web2_snapshot" {
     description = "web2-snapshot"
   }
 
-  disk_ids = [var.web_vm_image_id]
+  disk_ids = [yandex_compute_instance.web2.boot_disk[0].disk_id]
 }
 
 # Zabbix server deploy
@@ -408,7 +408,7 @@ resource "yandex_compute_snapshot_schedule" "zabbix_snapshot" {
     description = "zabbix-snapshot"
   }
 
-  disk_ids = [var.web_vm_image_id]
+  disk_ids = [yandex_compute_instance.zabbix.boot_disk[0].disk_id]
 }
 
 # Kibana deploy
@@ -463,7 +463,7 @@ resource "yandex_compute_snapshot_schedule" "kibana_snapshot" {
     description = "kibana-snapshot"
   }
 
-  disk_ids = [var.web_vm_image_id]
+  disk_ids = [yandex_compute_instance.kibana.boot_disk[0].disk_id]
 }
 
 resource "yandex_compute_instance" "elastic" {
@@ -509,7 +509,7 @@ resource "yandex_compute_snapshot_schedule" "elastic_snapshot" {
     description = "elastic-snapshot"
   }
 
-  disk_ids = [var.web_vm_image_id]
+  disk_ids = [yandex_compute_instance.elastic.boot_disk[0].disk_id]
 }
 
 # Target host group for ALB
