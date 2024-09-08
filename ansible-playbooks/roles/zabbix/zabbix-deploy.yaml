@@ -53,14 +53,14 @@
       args:
         creates: /var/lib/mysql
 
-    - name: Check if Zabbix Server container exists
-      shell: docker ps -a --filter "name=zabbix-server" --format "{{.ID}}"
-      register: zabbix_server_container
-      changed_when: false
+    - name: Check and remove existing Zabbix containers using template
+      template:
+        src: '/HA-web/ansible-playbooks/templates/zabbix/remove_zabbix.j2'
+        dest: /tmp/remove_zabbix.sh
+        mode: '0755'
 
-    - name: Remove existing Zabbix Server container if it exists
-      command: docker rm -f {{ zabbix_server_container.stdout }}
-      when: zabbix_server_container.stdout != ""
+    - name: Execute the script to remove Zabbix containers
+      command: /tmp/remove_zabbix.sh
 
     - name: Start Zabbix Server container
       command: >
@@ -71,15 +71,6 @@
         -e MYSQL_PASSWORD={{ mysql_zabbix_password }}
         -p 10051:10051
         zabbix/zabbix-server-mysql:latest
-
-    - name: Check if Zabbix Web container exists
-      shell: docker ps -a --filter "name=zabbix-web" --format "{{.ID}}"
-      register: zabbix_web_container
-      changed_when: false
-
-    - name: Remove existing Zabbix Web container if it exists
-      command: docker rm -f {{ zabbix_web_container.stdout }}
-      when: zabbix_web_container.stdout != ""
 
     - name: Start Zabbix Web interface container
       command: >
