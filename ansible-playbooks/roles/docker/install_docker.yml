@@ -75,6 +75,6 @@
       failed_when: false
 
     - name: Join Swarm cluster
-      command: docker swarm join --token {{ hostvars['web1.internal-cloud']['global_swarm_worker_token'] }} {{ swarm_manager_ip }}:2377
+      command: docker swarm join --token {{ hostvars['web1.internal-cloud']['global_swarm_worker_token'] }} {{ hostvars['web1.internal-cloud']['swarm_manager_ip'] }}:2377
       when: swarm_status.stdout != "active"
       ignore_errors: no
