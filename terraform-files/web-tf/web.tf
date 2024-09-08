@@ -75,6 +75,14 @@ resource "yandex_dns_recordset" "bastion" {
   data    = ["172.16.0.254"]
 }
 
+resource "yandex_dns_recordset" "zabbix" {
+  zone_id = yandex_dns_zone.internal_cloud.id
+  name    = "zabbix.internal-cloud."
+  type    = "A"
+  ttl     = 600
+  data    = ["172.16.0.100"]
+}
+
 # Internal subnets
 resource "yandex_vpc_subnet" "bastion_internal_a" {
   name           = var.subnet_bastion_internal_a
@@ -218,10 +226,29 @@ resource "yandex_compute_instance" "bastion" {
   }
 }
 
+# Bastion snapshot schedule
+resource "yandex_compute_snapshot_schedule" "bastion_snapshot" {
+  name = "bastion-snapshot-everyday"
+
+  schedule_policy {
+    expression = "0 3 * * *"
+  }
+
+  snapshot_count = 7
+
+  snapshot_spec {
+    description = "bastion-snapshot"
+  }
+
+  disk_ids = var.bastion_image_id
+}
+
+
 # Web1 deploy
 resource "yandex_compute_instance" "web1" {
   name        = "web1"
   zone        = "ru-central1-a"
+  hostname    = "web2"
   resources {
     cores  = 2
     memory = 2
@@ -253,9 +280,10 @@ resource "yandex_compute_instance" "web2" {
   name        = "web2"
   platform_id = "standard-v1"
   zone        = "ru-central1-b"
+  hostname    = "web1"
   resources {
     cores  = 2
-    memory = 4
+    memory = 2
   }
   boot_disk {
     initialize_params {
@@ -272,6 +300,46 @@ resource "yandex_compute_instance" "web2" {
 
   metadata = {
     user-data = templatefile("./meta.yml", {
+      private_key = file("/root/.ssh/id_rsa")
+    })
+    serial-port-enable = "1"
+  }
+}
+
+# Zabbix server deploy
+
+resource "yandex_compute_instance" "zabbix" {
+  name        = "web2"
+  platform_id = "standard-v1"
+  zone        = "ru-central1-b"
+  hostname    = "zabbix-server"
+  resources {
+    cores  = 2
+    memory = 2
+  }
+  boot_disk {
+    initialize_params {
+      image_id = var.web_vm_image_id
+      size     = var.web_vm_disk_size
+    }
+  }
+
+  network_interface {
+    subnet_id           = yandex_vpc_subnet.bastion_internal_a.id
+    nat                 = false
+    security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
+    ip_address          = "172.16.0.100"
+  }
+
+  network_interface {
+    subnet_id           = yandex_vpc_subnet.bastion_external_a.id
+    nat                 = true
+    security_group_ids  = [yandex_vpc_security_group.external_bastion_sg.id]
+    ip_address          = "172.16.1.100"
+  }  
+
+  metadata = {
+    user-data = templatefile("./meta_bastion.yml", {
       private_key = file("/root/.ssh/id_rsa")
     })
     serial-port-enable = "1"
