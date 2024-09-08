@@ -43,10 +43,14 @@
   become: yes
   tasks:
     - name: Check if node is part of a swarm
-      shell: docker info --format '{{ .Swarm.LocalNodeState }}'
-      register: swarm_status
-      ignore_errors: yes
-      failed_when: false
+      hosts: docker_swarm_workers
+      become: yes
+      tasks:
+        - name: Run check swarm status command from template
+          command: "{{ lookup('template', 'check_swarm_status.j2') }}"
+          register: swarm_status
+          ignore_errors: yes
+          failed_when: false
 
     - name: Initialize Docker Swarm using predefined IP
       command: docker swarm init --advertise-addr {{ swarm_manager_ip }}
@@ -65,12 +69,16 @@
       when: worker_token.stdout is defined
 
     - name: Check if node is part of a swarm
-      command: docker info --format '{{ .Swarm.LocalNodeState }}'
-      register: swarm_status
-      ignore_errors: yes
-      failed_when: false
+      hosts: docker_swarm_workers
+      become: yes
+      tasks:
+        - name: Run check swarm status command from template
+          command: "{{ lookup('template', 'ansible-playbooks/templates/docker/check_swarm_status.j2') }}"
+          register: swarm_status
+          ignore_errors: yes
+          failed_when: false
 
     - name: Join Swarm cluster
-      command: docker swarm join --token {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_worker_token'] }} {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_manager_ip'] }}:2377
+      command: "{{ lookup('template', 'ansible-playbooks/templates/docker/join_swarm.j2') }}"
       when: swarm_status.stdout != "active"
       ignore_errors: no
