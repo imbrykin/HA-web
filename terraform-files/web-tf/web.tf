@@ -56,7 +56,7 @@ resource "yandex_dns_recordset" "web1" {
   name    = "web1.internal-cloud."
   type    = "A"
   ttl     = 600
-  data    = ["172.17.0.10"]
+  data    = ["172.16.0.10"]
 }
 
 resource "yandex_dns_recordset" "web2" {
@@ -64,7 +64,15 @@ resource "yandex_dns_recordset" "web2" {
   name    = "web2.internal-cloud."
   type    = "A"
   ttl     = 600
-  data    = ["172.16.0.10"]
+  data    = ["172.17.0.10"]
+}
+
+resource "yandex_dns_recordset" "web3" {
+  zone_id = yandex_dns_zone.internal_cloud.id
+  name    = "web3.internal-cloud."
+  type    = "A"
+  ttl     = 600
+  data    = ["172.18.0.10"]
 }
 
 resource "yandex_dns_recordset" "bastion" {
@@ -112,6 +120,13 @@ resource "yandex_vpc_subnet" "bastion_internal_b" {
   zone           = "ru-central1-b"
   network_id     = yandex_vpc_network.bastion_internal.id
   v4_cidr_blocks = ["172.17.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bastion_internal_d" {
+  name           = var.subnet_bastion_internal_d
+  zone           = "ru-central1-d"
+  network_id     = yandex_vpc_network.bastion_internal.id
+  v4_cidr_blocks = ["172.18.0.0/24"]
 }
 
 # External network
@@ -265,7 +280,7 @@ resource "yandex_compute_snapshot_schedule" "bastion_snapshot" {
 resource "yandex_compute_instance" "web1" {
   name        = "web1"
   zone        = "ru-central1-a"
-  hostname    = "web2"
+  hostname    = "web1"
   resources {
     cores  = 2
     memory = 2
@@ -339,7 +354,7 @@ resource "yandex_compute_instance" "web2" {
   }
 }
 
-# Web1 snapshot schedule
+# Web2 snapshot schedule
 resource "yandex_compute_snapshot_schedule" "web2_snapshot" {
   name = "web2-snapshot-everyday"
 
@@ -354,6 +369,53 @@ resource "yandex_compute_snapshot_schedule" "web2_snapshot" {
   }
 
   disk_ids = [yandex_compute_instance.web2.boot_disk[0].disk_id]
+}
+
+# Web3 deploy
+resource "yandex_compute_instance" "web3" {
+  name        = "web3"
+  zone        = "ru-central1-d"
+  hostname    = "web3"
+  resources {
+    cores  = 2
+    memory = 2
+  }
+  boot_disk {
+    initialize_params {
+      image_id = var.web_vm_image_id
+      size     = var.web_vm_disk_size
+    }
+  }
+  network_interface {
+    subnet_id           = yandex_vpc_subnet.bastion_internal_d.id
+    nat                 = false
+    security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
+    ip_address          = "172.18.0.10"
+  }
+
+  metadata = {
+    user-data = templatefile("./meta.yml", {
+      private_key = file("/root/.ssh/id_rsa")
+    })
+    serial-port-enable = "1"
+  }
+}
+
+# Web3 snapshot schedule
+resource "yandex_compute_snapshot_schedule" "web3_snapshot" {
+  name = "web3-snapshot-everyday"
+
+  schedule_policy {
+    expression = "0 7 * * *"
+  }
+
+  snapshot_count = 7
+
+  snapshot_spec {
+    description = "web3-snapshot"
+  }
+
+  disk_ids = [yandex_compute_instance.web3.boot_disk[0].disk_id]
 }
 
 # Zabbix server deploy
@@ -527,6 +589,11 @@ resource "yandex_alb_target_group" "web_alb_target_group" {
     ip_address   = "172.17.0.10"
   }
 
+    target {
+    subnet_id    = yandex_vpc_subnet.bastion_internal_b.id
+    ip_address   = "172.18.0.10"
+  }
+
 }
 
 # Backend group for ALB
@@ -553,7 +620,7 @@ resource "yandex_alb_backend_group" "web_alb_backend_group" {
       }
     }
   }
-  depends_on = [yandex_compute_instance.web2]
+  depends_on = [yandex_compute_instance.web3]
 }
 
 # HTTP Router Configuration

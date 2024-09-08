@@ -1,0 +1,36 @@
+---
+- name: Deploy nginx on Docker Swarm
+  hosts: all
+  become: yes
+  tasks:
+    - name: Pull nginx image
+      command: docker pull nginx:latest
+
+    - name: Get local IP
+      shell: ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
+      register: local_ip
+      changed_when: false
+
+    - name: Create custom index.html with local IP
+      copy:
+        content: "{{ local_ip.stdout }}"
+        dest: "/tmp/index.html"
+        mode: '0644'
+
+    - name: Check if nginx service exists
+      command: docker service ls --filter name=nginx -q
+      register: nginx_service_check
+      failed_when: false
+      changed_when: false
+      when: "'docker_swarm_manager' in group_names"
+
+    - name: Create nginx service in Docker Swarm
+      command: >
+        docker service create 
+        --name nginx 
+        --mode global 
+        --publish published=80,target=80
+        --publish published=443,target=443 
+        --mount type=bind,src=/tmp/index.html,dst=/usr/share/nginx/html/index.html 
+        nginx:latest
+      when: "'docker_swarm_manager' in group_names and not nginx_service_check.stdout"

@@ -1,0 +1,65 @@
+---
+- name: Update APT cache, Install Docker and Dependencies
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update APT cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install gnupg for GPG key handling
+      apt:
+        name: gnupg
+        state: present
+
+    - name: Install required packages
+      apt:
+        name: 
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+    - name: Add Docker APT repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/debian/ {{ ansible_distribution_release }} stable
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        update_cache: yes
+        state: present
+
+- name: Initialize Docker Swarm
+  hosts: docker_swarm_manager
+  become: yes
+  tasks:
+    - name: Initialize Swarm
+      command: docker swarm init --advertise-addr {{ ansible_host }}
+      ignore_errors: no
+      register: swarm_result
+
+    - name: Get Swarm join token for workers
+      command: docker swarm join-token -q worker
+      when: swarm_result is changed
+      register: worker_token
+
+    - name: Store worker token
+      set_fact:
+        swarm_worker_token: "{{ worker_token.stdout }}"
+
+- name: Join Swarm as worker
+  hosts: docker_swarm_workers
+  become: yes
+  tasks:
+    - name: Join Swarm cluster
+      command: docker swarm join --token {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_worker_token'] }} {{ hostvars[groups['docker_swarm_manager'][0]]['inventory_hostname'] }}:2377
+      ignore_errors: no
