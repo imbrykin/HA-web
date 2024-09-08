@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Check if MySQL container exists
-mysql_container_id=$(docker ps -a --filter "name=zabbix-mysql" --format "{{'{{'}}.ID{{'}}'}}")
+mysql_container_id=$(docker ps -a --filter "name=zabbix-server-mysql" --format "{{'{{'}}.ID{{'}}'}}")
 
 # If container exists, check if it is running
 if [ -n "$mysql_container_id" ]; then
-  mysql_running=$(docker inspect --format="{{'{{'}}.State.Running{{'}}'}}" zabbix-mysql)
+  mysql_running=$(docker inspect --format="{{'{{'}}.State.Running{{'}}'}}" zabbix-server-mysql)
   if [ "$mysql_running" == "true" ]; then
     echo "MySQL container is running."
     exit 0

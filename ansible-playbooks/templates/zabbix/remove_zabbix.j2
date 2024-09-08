@@ -1,18 +1,7 @@
 #!/bin/bash
 
-# Check if Zabbix Server container exists
-container_id=$(docker ps -a --filter "name=zabbix-server" --format "{{'{{'}}.ID{{'}}'}}")
-
-# If container exists, remove it
-if [ -n "$container_id" ]; then
-  echo "Removing existing Zabbix Server container: $container_id"
-  docker rm -f "$container_id"
-else
-  echo "No existing Zabbix Server container found."
-fi
-
 # Check if Zabbix Web container exists
-container_id_web=$(docker ps -a --filter "name=zabbix-web" --format "{{'{{'}}.ID{{'}}'}}")
+container_id_web=$(docker ps -a --filter "name=zabbix-web-nginx-mysql" --format "{{'{{'}}.ID{{'}}'}}")
 
 # If container exists, remove it
 if [ -n "$container_id_web" ]; then
