@@ -43,9 +43,9 @@
   become: yes
   tasks:
     - name: Check if node is part of a swarm
-      command: "{{ lookup('template', 'ansible-playbooks/templates/docker/check_swarm_status.j2') }}"
+      command: "{{ lookup('template', 'templates/docker/check_swarm_status.j2') }}"
       register: swarm_status
-      ignore_errors: yes
+      ignore_errors: no
       failed_when: false
 
     - name: Initialize Docker Swarm using predefined IP
@@ -69,12 +69,12 @@
   become: yes
   tasks:
     - name: Check if node is part of a swarm
-      command: "{{ lookup('template', 'ansible-playbooks/templates/docker/check_swarm_status.j2') }}"
+      command: "{{ lookup('template', 'templates/docker/check_swarm_status.j2') }}"
       register: swarm_status
       ignore_errors: yes
       failed_when: false
 
     - name: Join Swarm cluster
-      command: "{{ lookup('template', 'ansible-playbooks/templates/docker/join_swarm.j2') }}"
+      command: "{{ lookup('template', 'templates/docker/join_swarm.j2') }}"
       when: swarm_status.stdout != "active"
       ignore_errors: no
