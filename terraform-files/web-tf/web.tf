@@ -206,6 +206,7 @@ resource "yandex_vpc_security_group" "external_bastion_sg" {
 resource "yandex_compute_instance" "bastion" {
   name       = "bastion"
   zone       = "ru-central1-a"
+  hostname    = "bastion"
 
   resources {
     cores  = 2
