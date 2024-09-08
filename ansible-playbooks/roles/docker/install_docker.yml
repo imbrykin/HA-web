@@ -59,24 +59,17 @@
       register: worker_token
       failed_when: worker_token.stdout is not defined
 
-    - name: Store worker token globally for all hosts
+    - name: Set worker token as global var
       set_fact:
         global_swarm_worker_token: "{{ worker_token.stdout }}"
       when: worker_token.stdout is defined
-      delegate_to: localhost
-      delegate_facts: true
 
 - name: Join Swarm as worker
   hosts: docker_swarm_workers
   become: yes
   tasks:
-    - name: Check if node is part of a swarm
-      command: "{{ lookup('template', '/HA-web/ansible-playbooks/templates/docker/check_swarm_status.j2') }}"
-      register: swarm_status
-      ignore_errors: no
-      failed_when: false
-
     - name: Join Swarm cluster
-      command: docker swarm join --token {{ global_swarm_worker_token }} {{ swarm_manager_ip }}:2377
+      command: docker swarm join --token {{ hostvars['web1.internal-cloud']['global_swarm_worker_token'] }} {{ swarm_manager_ip }}:2377
       when: swarm_status.stdout != "active"
       ignore_errors: no
+
