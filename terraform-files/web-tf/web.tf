@@ -83,6 +83,22 @@ resource "yandex_dns_recordset" "zabbix" {
   data    = ["172.16.0.100"]
 }
 
+resource "yandex_dns_recordset" "kibana" {
+  zone_id = yandex_dns_zone.internal_cloud.id
+  name    = "kibana.internal-cloud."
+  type    = "A"
+  ttl     = 600
+  data    = ["172.16.0.200"]
+}
+
+resource "yandex_dns_recordset" "elastic" {
+  zone_id = yandex_dns_zone.internal_cloud.id
+  name    = "elastic.internal-cloud."
+  type    = "A"
+  ttl     = 600
+  data    = ["172.17.0.100"]
+}
+
 # Internal subnets
 resource "yandex_vpc_subnet" "bastion_internal_a" {
   name           = var.subnet_bastion_internal_a
@@ -231,7 +247,7 @@ resource "yandex_compute_snapshot_schedule" "bastion_snapshot" {
   name = "bastion-snapshot-everyday"
 
   schedule_policy {
-    expression = "0 3 * * *"
+    expression = "0 1 * * *"
   }
 
   snapshot_count = 7
@@ -275,10 +291,26 @@ resource "yandex_compute_instance" "web1" {
   }
 }
 
+# Web1 snapshot schedule
+resource "yandex_compute_snapshot_schedule" "web1_snapshot" {
+  name = "web1-snapshot-everyday"
+
+  schedule_policy {
+    expression = "0 2 * * *"
+  }
+
+  snapshot_count = 7
+
+  snapshot_spec {
+    description = "web1-snapshot"
+  }
+
+  disk_ids = var.web_vm_image_id
+}
+
 # Web2 deploy
 resource "yandex_compute_instance" "web2" {
   name        = "web2"
-  platform_id = "standard-v1"
   zone        = "ru-central1-b"
   hostname    = "web1"
   resources {
@@ -306,13 +338,29 @@ resource "yandex_compute_instance" "web2" {
   }
 }
 
+# Web1 snapshot schedule
+resource "yandex_compute_snapshot_schedule" "web2_snapshot" {
+  name = "web2-snapshot-everyday"
+
+  schedule_policy {
+    expression = "0 3 * * *"
+  }
+
+  snapshot_count = 7
+
+  snapshot_spec {
+    description = "web2-snapshot"
+  }
+
+  disk_ids = var.web_vm_image_id
+}
+
 # Zabbix server deploy
 
 resource "yandex_compute_instance" "zabbix" {
-  name        = "web2"
-  platform_id = "standard-v1"
+  name        = "zabbix"
   zone        = "ru-central1-b"
-  hostname    = "zabbix-server"
+  hostname    = "zabbix"
   resources {
     cores  = 2
     memory = 2
@@ -344,6 +392,124 @@ resource "yandex_compute_instance" "zabbix" {
     })
     serial-port-enable = "1"
   }
+}
+
+# Zabbix snapshot schedule
+resource "yandex_compute_snapshot_schedule" "zabbix_snapshot" {
+  name = "zabbix-snapshot-everyday"
+
+  schedule_policy {
+    expression = "0 4 * * *"
+  }
+
+  snapshot_count = 7
+
+  snapshot_spec {
+    description = "zabbix-snapshot"
+  }
+
+  disk_ids = var.web_vm_image_id
+}
+
+# Kibana deploy
+resource "yandex_compute_instance" "kibana" {
+  name        = "kibana"
+  zone        = "ru-central1-b"
+  hostname    = "kibana"
+  resources {
+    cores  = 2
+    memory = 2
+  }
+  boot_disk {
+    initialize_params {
+      image_id = var.web_vm_image_id
+      size     = var.web_vm_disk_size
+    }
+  }
+
+  network_interface {
+    subnet_id           = yandex_vpc_subnet.bastion_internal_a.id
+    nat                 = false
+    security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
+    ip_address          = "172.16.0.200"
+  }
+
+  network_interface {
+    subnet_id           = yandex_vpc_subnet.bastion_external_a.id
+    nat                 = true
+    security_group_ids  = [yandex_vpc_security_group.external_bastion_sg.id]
+    ip_address          = "172.16.1.200"
+  }  
+
+  metadata = {
+    user-data = templatefile("./meta_bastion.yml", {
+      private_key = file("/root/.ssh/id_rsa")
+    })
+    serial-port-enable = "1"
+  }
+}
+
+# Kibana snapshot schedule
+resource "yandex_compute_snapshot_schedule" "kibana_snapshot" {
+  name = "kibana-snapshot-everyday"
+
+  schedule_policy {
+    expression = "0 5 * * *"
+  }
+
+  snapshot_count = 7
+
+  snapshot_spec {
+    description = "kibana-snapshot"
+  }
+
+  disk_ids = var.web_vm_image_id
+}
+
+resource "yandex_compute_instance" "elastic" {
+  name        = "elastic"
+  zone        = "ru-central1-b"
+  hostname    = "elastic"
+  resources {
+    cores  = 2
+    memory = 2
+  }
+  boot_disk {
+    initialize_params {
+      image_id = var.web_vm_image_id
+      size     = var.web_vm_disk_size
+    }
+  }
+  network_interface {
+    subnet_id           = yandex_vpc_subnet.bastion_internal_b.id
+    nat                 = false
+    security_group_ids  = [yandex_vpc_security_group.internal_bastion_sg.id]
+    ip_address          = "172.17.0.100"
+  }
+
+  metadata = {
+    user-data = templatefile("./meta.yml", {
+      private_key = file("/root/.ssh/id_rsa")
+    })
+    serial-port-enable = "1"
+  }
+}
+
+# Elastic snapshot schedule
+resource "yandex_compute_snapshot_schedule" "elastic_snapshot" {
+  name = "elastic-snapshot-everyday"
+
+  schedule_policy {
+    expression = "0 6 * * *"
+  }
+
+  snapshot_count = 7
+
+  snapshot_spec {
+    description = "elastic-snapshot"
+  }
+
+  disk_ids = var.web_vm_image_id
 }
 
 # Target host group for ALB
