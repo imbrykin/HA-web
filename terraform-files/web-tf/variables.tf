@@ -23,6 +23,11 @@ variable "subnet_bastion_internal_b" {
   default     = "bastion-internal-segment-b"
 }
 
+variable "subnet_bastion_internal_d" {
+  description = "Internal bastion subnet in ru-central1-d."
+  default     = "bastion-internal-segment-d"
+}
+
 variable "network_bastion_external" {
   description = "Name of the external network for Bastion."
   default     = "bastion-external"
