@@ -65,10 +65,16 @@
     - name: Wait for MySQL to be ready
       command: sleep 20
 
-    - name: Check if MySQL container is running
-      shell: docker inspect --format="{{ '{{' }}.State.Running{{ '}}' }}" zabbix-mysql
+    - name: Check if MySQL container is running using template
+      template:
+        src: '/HA-web/ansible-playbooks/templates/zabbix/check_mysql_running.j2'
+        dest: /tmp/check_mysql_running.sh
+        mode: '0755'
+
+    - name: Execute the script to check MySQL container status
+      command: /tmp/check_mysql_running.sh
       register: mysql_running
-      failed_when: mysql_running.stdout != "true"
+      failed_when: mysql_running.rc != 0
 
     - name: Check and remove existing Zabbix containers using template
       template:
