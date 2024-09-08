@@ -69,14 +69,14 @@
       lineinfile:
         path: /etc/zabbix/zabbix_agentd.conf
         regexp: '^Server='
-        line: 'Server=127.0.0.1'
+        line: 'Server=10.10.1.100'
         backup: yes
 
     - name: Configure Zabbix Agent for active checks to local server
       lineinfile:
         path: /etc/zabbix/zabbix_agentd.conf
         regexp: '^ServerActive='
-        line: 'ServerActive=127.0.0.1'
+        line: 'ServerActive=10.10.1.100'
         backup: yes
 
     - name: Set the hostname for Zabbix Agent
