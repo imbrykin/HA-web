@@ -1,80 +1,54 @@
 ---
-- name: Update APT cache, Install Docker and Dependencies on Ubuntu
-  hosts: all
+- name: Deploy nginx on Docker Swarm with a custom webpage
+  hosts: docker_swarm_manager,docker_swarm_workers
   become: yes
   tasks:
-    - name: Update APT cache
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
+    - name: Pull nginx image
+      command: docker pull nginx:latest
 
-    - name: Install gnupg for GPG key handling
-      apt:
-        name: gnupg
-        state: present
+    - name: Get local IP
+      shell: ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
+      register: local_ip
+      changed_when: false
 
-    - name: Install required packages
-      apt:
-        name: 
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - software-properties-common
-        state: present
+    - name: Create nginx directory in /etc/nginx.files (if necessary)
+      file:
+        path: /etc/nginx.files
+        state: directory
+        mode: '0755'
 
-    - name: Add Docker GPG key
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
+    - name: Create custom index.html with local IP from the template
+      template:
+        src: '/HA-web/ansible-playbooks/templates/nginx.files/index.html.j2'
+        dest: "/etc/nginx.files/index.html"
+        mode: '0644'
 
-    - name: Add Docker APT repository
-      apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
-        state: present
+    - name: Copy CSS file from the repository to the nginx directory
+      copy:
+        src: '/HA-web/ansible-playbooks/templates/nginx.files/styles.css'
+        dest: "/etc/nginx.files/styles.css"
+        mode: '0644'
 
-    - name: Install Docker
-      apt:
-        name: docker-ce
-        update_cache: yes
-        state: present
-
-- name: Initialize Docker Swarm
-  hosts: docker_swarm_manager
-  become: yes
-  tasks:
-    - name: Check if node is part of a swarm
-      command: "{{ lookup('template', '/HA-web/ansible-playbooks/templates/docker/check_swarm_status.j2') }}"
-      register: swarm_status
-      ignore_errors: no
+    - name: Check if nginx service exists
+      command: docker service ls --filter name=nginx -q
+      register: nginx_service_check
       failed_when: false
+      changed_when: false
+      when: "'docker_swarm_manager' in group_names"
 
-    - name: Initialize Docker Swarm using predefined IP
-      command: docker swarm init --advertise-addr {{ swarm_manager_ip }}
-      when: swarm_status.stdout is defined and swarm_status.stdout != "active"
-      ignore_errors: no
-      register: swarm_result
+    - name: Remove existing nginx service if it exists
+      command: docker service rm nginx
+      when: nginx_service_check.stdout != ""
+      ignore_errors: true
 
-    - name: Get Swarm join token for workers
-      command: docker swarm join-token -q worker
-      register: worker_token
-      failed_when: worker_token.stdout is not defined
-
-    - name: Set worker token as global var
-      set_fact:
-        global_swarm_worker_token: "{{ worker_token.stdout }}"
-      when: worker_token.stdout is defined
-
-- name: Join Swarm as worker
-  hosts: docker_swarm_workers
-  become: yes
-  tasks:
-    - name: Check if node is part of a swarm
-      command: "{{ lookup('template', '/HA-web/ansible-playbooks/templates/docker/check_swarm_status.j2') }}"
-      register: swarm_status
-      ignore_errors: yes
-      failed_when: false
-
-    - name: Join Swarm cluster
-      command: docker swarm join --token {{ hostvars['web1.internal-cloud']['global_swarm_worker_token'] }} {{ hostvars['web1.internal-cloud']['swarm_manager_ip'] }}:2377
-      when: swarm_status.stdout != "active"
-      ignore_errors: no
+    - name: Create nginx service in Docker Swarm on all nodes
+      command: >
+        docker service create 
+        --name nginx 
+        --mode global 
+        --publish published=80,target=80
+        --publish published=443,target=443 
+        --mount type=bind,src=/etc/nginx.files/index.html,dst=/usr/share/nginx/html/index.html,readonly 
+        --mount type=bind,src=/etc/nginx.files/styles.css,dst=/usr/share/nginx/html/styles.css,readonly
+        nginx:latest
+      when: "'docker_swarm_manager' in group_names"
