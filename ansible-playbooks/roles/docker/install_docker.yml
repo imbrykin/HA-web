@@ -49,7 +49,7 @@
 
     - name: Initialize Docker Swarm using predefined IP
       command: docker swarm init --advertise-addr {{ swarm_manager_ip }}
-      when: swarm_status.stdout != "active"
+      when: swarm_status.stdout is defined and swarm_status.stdout != "active"
       ignore_errors: no
       register: swarm_result
 
