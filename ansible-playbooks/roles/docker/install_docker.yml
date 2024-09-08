@@ -63,10 +63,13 @@
         swarm_worker_token: "{{ worker_token.stdout }}"
       when: worker_token.stdout is defined
 
-- name: Join Swarm as worker
-  hosts: docker_swarm_workers
-  become: yes
-  tasks:
-    - name: Join Swarm cluster
-      command: docker swarm join --token {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_worker_token'] }} {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_manager_ip'] }}:2377
-      ignore_errors: no
+- name: Check if node is part of a swarm
+  command: docker info --format '{{ .Swarm.LocalNodeState }}'
+  register: swarm_status
+  ignore_errors: yes
+  failed_when: false
+
+- name: Join Swarm cluster
+  command: docker swarm join --token {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_worker_token'] }} {{ hostvars[groups['docker_swarm_manager'][0]]['swarm_manager_ip'] }}:2377
+  when: swarm_status.stdout != "active"
+  ignore_errors: no
