@@ -33,13 +33,13 @@
         state: present
 
     - name: Pull Zabbix server image
-      command: docker pull zabbix/zabbix-server-mysql:latest
+      command: docker pull zabbix/zabbix-server-mysql:alpine-7.0-latest
 
     - name: Pull MySQL image
-      command: docker pull mysql:5.7
+      command: docker pull mysql:8.0-oracle
 
     - name: Pull Zabbix web interface image
-      command: docker pull zabbix/zabbix-web-nginx-mysql:latest
+      command: docker pull zabbix/zabbix-web-nginx-mysql:alpine-7.0-latest
 
     - name: Check and remove existing MySQL container using template
       template:
@@ -53,12 +53,13 @@
     - name: Start MySQL container
       command: >
         docker run -d --name zabbix-mysql
-        -e MYSQL_DATABASE=zabbix
-        -e MYSQL_USER=zabbix
+        -e MYSQL_DATABASE="zabbix"
+        -e MYSQL_USER="zabbix"
         -e MYSQL_PASSWORD={{ mysql_zabbix_password }}
         -e MYSQL_ROOT_PASSWORD={{ mysql_root_password }}
-        -v /var/lib/mysql:/var/lib/mysql
-        mysql:5.7
+        --restart unless-stopped
+        mysql:8.0-oracle
+        --character-set-server=utf8 --collation-server=utf8_bin --default-authentication-plugin=mysql_native_password
       args:
         creates: /var/lib/mysql
 
@@ -90,21 +91,28 @@
         docker run -d --name zabbix-server
         --link zabbix-mysql:mysql
         -e DB_SERVER_HOST="mysql"
+        -e MYSQL_DATABASE="zabbix"
         -e MYSQL_USER="zabbix"
         -e MYSQL_PASSWORD={{ mysql_zabbix_password }}
+        -e MYSQL_ROOT_PASSWORD={{ mysql_root_password }}
         -p 10051:10051
-        zabbix/zabbix-server-mysql:latest
+        --restart unless-stopped
+        zabbix/zabbix-server-mysql:alpine-7.0-latest
 
     - name: Start Zabbix Web interface container
       command: >
         docker run -d --name zabbix-web
         --link zabbix-server:zabbix-server
         --link zabbix-mysql:mysql
+        -e ZBX_SERVER_HOST="zabbix-server"
         -e DB_SERVER_HOST="mysql"
+        -e MYSQL_DATABASE="zabbix"
         -e MYSQL_USER="zabbix"
         -e MYSQL_PASSWORD={{ mysql_zabbix_password }}
+        -e MYSQL_ROOT_PASSWORD={{ mysql_root_password }}
         -p 80:8080
-        zabbix/zabbix-web-nginx-mysql:latest
+        --restart unless-stopped
+        zabbix/zabbix-web-nginx-mysql:alpine-7.0-latest
 
 - name: Install and configure Zabbix Agent on other nodes
   hosts: docker_swarm_manager,docker_swarm_workers,elk
@@ -112,7 +120,7 @@
   tasks:
     - name: Add Zabbix repository
       apt_repository:
-        repo: "deb http://repo.zabbix.com/zabbix/6.0/ubuntu $(lsb_release -cs) main"
+        repo: "deb http://repo.zabbix.com/zabbix/7.0/ubuntu $(lsb_release -cs) main"
         state: present
         filename: zabbix
 
