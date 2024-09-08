@@ -43,9 +43,10 @@
   become: yes
   tasks:
     - name: Check if node is part of a swarm
-      command: docker info --format '{{ .Swarm.LocalNodeState }}'
+      command: docker info --format '{{"{{"}} .Swarm.LocalNodeState {{"}}"}}'
       register: swarm_status
       ignore_errors: yes
+      failed_when: false
 
     - name: Initialize Docker Swarm using predefined IP
       command: docker swarm init --advertise-addr {{ swarm_manager_ip }}
