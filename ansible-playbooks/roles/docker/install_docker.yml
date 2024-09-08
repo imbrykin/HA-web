@@ -39,7 +39,7 @@
     - name: Remove existing nginx service if it exists
       command: docker service rm nginx
       when: nginx_service_check.stdout != ""
-      ignore_errors: true
+      ignore_errors: false
 
     - name: Create nginx service in Docker Swarm on all nodes
       command: >
