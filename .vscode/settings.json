@@ -1,4 +1,8 @@
 {
     "ansible.python.interpreterPath": "/usr/bin/python3",
-    "svn.ignoreMissingSvnWarning": true
+    "svn.ignoreMissingSvnWarning": true,
+    "files.associations": {
+    "*plays.yml": "ansible",
+    "*init.yml": "yaml",
+  }
 }
