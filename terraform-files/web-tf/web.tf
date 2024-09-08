@@ -186,6 +186,13 @@ resource "yandex_vpc_security_group" "internal_bastion_sg" {
     predefined_target = "self_security_group"
   }
 
+  ingress {
+    description       = "SSH-in"
+    protocol          = "TCP"
+    port              = 2377
+    predefined_target = "self_security_group"
+  }
+
   egress {
     description    = "All-out"
     protocol       = "ANY"
