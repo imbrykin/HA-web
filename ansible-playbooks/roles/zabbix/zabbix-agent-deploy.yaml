@@ -10,8 +10,6 @@
 
     - name: Install Zabbix release package using dpkg
       shell: dpkg -i /tmp/zabbix-release_6.0-4+ubuntu22.04_all.deb
-      args:
-        warn: false
       register: dpkg_install
       ignore_errors: true
 
@@ -24,6 +22,7 @@
       apt:
         name: zabbix-agent
         state: present
+      when: dpkg_install.changed
 
     - name: Configure Zabbix Agent to point to Zabbix server
       lineinfile:
