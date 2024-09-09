@@ -28,7 +28,7 @@
       lineinfile:
         path: /etc/zabbix/zabbix_agent2.conf
         regexp: '^Server='
-        line: 'Server=10.10.1.100'
+        line: 'Server=10.10.1.100,zabbix.internal-cloud'
         backup: yes
 
     - name: Configure Zabbix Agent for active checks to Zabbix server

@@ -104,7 +104,7 @@ resource "yandex_dns_recordset" "elastic" {
   name    = "elastic.internal-cloud."
   type    = "A"
   ttl     = 600
-  data    = ["10.10.0.100"]
+  data    = ["10.11.0.100"]
 }
 
 # Internal subnets
@@ -228,6 +228,14 @@ resource "yandex_vpc_security_group" "external_bastion_sg" {
     port       = 22
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    description = "Zabbix-web"
+    protocol    = "TCP"
+    port       = 80
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
 
   egress {
     description = "All-out"
@@ -472,7 +480,7 @@ resource "yandex_compute_instance" "zabbix" {
   }  
 
   metadata = {
-    user-data = templatefile("./meta_bastion.yml", {
+    user-data = templatefile("./meta_zabbix.yml", {
       private_key = file("/root/.ssh/id_rsa")
     })
     serial-port-enable = "1"
