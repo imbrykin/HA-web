@@ -52,7 +52,7 @@
 
     - name: Start MySQL container
       command: >
-        {{ lookup('template', 'start_mysql_container.j2') }}
+        {{ lookup('template', '/HA-web/ansible-playbooks/templates/zabbix/start_mysql_container.j2') }}
       args:
         creates: /var/lib/mysql
 
@@ -81,11 +81,11 @@
 
     - name: Start Zabbix Server container
       command: >
-        {{ lookup('template', 'start_zabbix_server_container.j2') }}
+        {{ lookup('template', '/HA-web/ansible-playbooks/templates/zabbix/start_zabbix_server_container.j2') }}
 
     - name: Start Zabbix Web interface container
       command: >
-        {{ lookup('template', 'start_zabbix_web_container.j2') }}
+        {{ lookup('template', '/HA-web/ansible-playbooks/templates/zabbix/start_zabbix_web_container.j2') }}
 
 - name: Install and configure Zabbix Agent on other nodes
   hosts: docker_swarm_manager,docker_swarm_workers,elk
