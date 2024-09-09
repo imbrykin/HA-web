@@ -8,13 +8,17 @@
         url: "https://repo.zabbix.com/zabbix/6.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.0-4+ubuntu22.04_all.deb"
         dest: "/tmp/zabbix-release_6.0-4+ubuntu22.04_all.deb"
 
-    - name: Install Zabbix release package
-      dpkg:
-        deb: "/tmp/zabbix-release_6.0-4+ubuntu22.04_all.deb"
+    - name: Install Zabbix release package using dpkg
+      command: dpkg -i /tmp/zabbix-release_6.0-4+ubuntu22.04_all.deb
+      args:
+        warn: false
+      register: dpkg_install
+      ignore_errors: true
 
-    - name: Update apt cache
+    - name: Ensure apt cache is updated after package installation
       apt:
         update_cache: yes
+      when: dpkg_install.changed
 
     - name: Install Zabbix Agent
       apt:
