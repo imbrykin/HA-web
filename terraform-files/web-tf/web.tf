@@ -535,7 +535,7 @@ resource "yandex_compute_instance" "kibana" {
   }  
 
   metadata = {
-    user-data = templatefile("./meta_bastion.yml", {
+    user-data = templatefile("./meta_kibana.yml", {
       private_key = file("/root/.ssh/id_rsa")
     })
     serial-port-enable = "1"
