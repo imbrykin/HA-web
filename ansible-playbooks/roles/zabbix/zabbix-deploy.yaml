@@ -87,58 +87,58 @@
       command: >
         {{ lookup('template', '/HA-web/ansible-playbooks/templates/zabbix/start_zabbix_web_container.j2') }}
 
-- name: Install and configure Zabbix Agent on other nodes
-  hosts: docker_swarm_manager,docker_swarm_workers,elk
-  become: yes
-  tasks:
-    - name: Add Zabbix repository
-      apt_repository:
-        repo: "deb http://repo.zabbix.com/zabbix/7.0/ubuntu $(lsb_release -cs) main"
-        state: present
-        filename: zabbix
+# - name: Install and configure Zabbix Agent on other nodes
+#   hosts: docker_swarm_manager,docker_swarm_workers,elk
+#   become: yes
+#   tasks:
+#     - name: Add Zabbix repository
+#       apt_repository:
+#         repo: "deb http://repo.zabbix.com/zabbix/7.0/ubuntu $(lsb_release -cs) main"
+#         state: present
+#         filename: zabbix
 
-    - name: Add Zabbix public GPG key
-      apt_key:
-        url: "https://repo.zabbix.com/zabbix-official-repo.key"
-        state: present
+#     - name: Add Zabbix public GPG key
+#       apt_key:
+#         url: "https://repo.zabbix.com/zabbix-official-repo.key"
+#         state: present
 
-    - name: Update apt cache
-      apt:
-        update_cache: yes
+#     - name: Update apt cache
+#       apt:
+#         update_cache: yes
 
-    - name: Install Zabbix Agent
-      apt:
-        name: zabbix-agent
-        state: present
+#     - name: Install Zabbix Agent
+#       apt:
+#         name: zabbix-agent
+#         state: present
 
-    - name: Configure Zabbix Agent to point to Zabbix server
-      lineinfile:
-        path: /etc/zabbix/zabbix_agentd.conf
-        regexp: '^Server='
-        line: 'Server=10.10.1.100'
-        backup: yes
+#     - name: Configure Zabbix Agent to point to Zabbix server
+#       lineinfile:
+#         path: /etc/zabbix/zabbix_agentd.conf
+#         regexp: '^Server='
+#         line: 'Server=10.10.1.100'
+#         backup: yes
 
-    - name: Configure Zabbix Agent for active checks to Zabbix server
-      lineinfile:
-        path: /etc/zabbix/zabbix_agentd.conf
-        regexp: '^ServerActive='
-        line: 'ServerActive=10.10.1.100'
-        backup: yes
+#     - name: Configure Zabbix Agent for active checks to Zabbix server
+#       lineinfile:
+#         path: /etc/zabbix/zabbix_agentd.conf
+#         regexp: '^ServerActive='
+#         line: 'ServerActive=10.10.1.100'
+#         backup: yes
 
-    - name: Set the hostname for Zabbix Agent
-      lineinfile:
-        path: /etc/zabbix/zabbix_agentd.conf
-        regexp: '^Hostname='
-        line: 'Hostname={{ inventory_hostname }}'
-        backup: yes
+#     - name: Set the hostname for Zabbix Agent
+#       lineinfile:
+#         path: /etc/zabbix/zabbix_agentd.conf
+#         regexp: '^Hostname='
+#         line: 'Hostname={{ inventory_hostname }}'
+#         backup: yes
 
-    - name: Enable and start Zabbix Agent service
-      systemd:
-        name: zabbix-agent
-        enabled: yes
-        state: started
+#     - name: Enable and start Zabbix Agent service
+#       systemd:
+#         name: zabbix-agent
+#         enabled: yes
+#         state: started
 
-    - name: Restart Zabbix Agent to apply configuration changes
-      service:
-        name: zabbix-agent
-        state: restarted
+#     - name: Restart Zabbix Agent to apply configuration changes
+#       service:
+#         name: zabbix-agent
+#         state: restarted
