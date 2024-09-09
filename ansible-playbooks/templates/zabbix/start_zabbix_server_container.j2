@@ -1,10 +1,1 @@
-docker run -d --name zabbix-server \
-  --link zabbix-mysql:mysql \
-  -e DB_SERVER_HOST="mysql" \
-  -e MYSQL_DATABASE="zabbix" \
-  -e MYSQL_USER="zabbix" \
-  -e MYSQL_PASSWORD="{{ mysql_zabbix_password }}" \
-  -e MYSQL_ROOT_PASSWORD="{{ mysql_root_password }}" \
-  -p 10051:10051 \
-  --restart unless-stopped \
-  zabbix/zabbix-server-mysql:alpine-7.0-latest
+docker run -d --name zabbix-server --link zabbix-mysql:mysql -e DB_SERVER_HOST="mysql" -e MYSQL_DATABASE="zabbix" -e MYSQL_USER="zabbix" -e MYSQL_PASSWORD="{{ mysql_zabbix_password }}" -e MYSQL_ROOT_PASSWORD="{{ mysql_root_password }}" -p 10051:10051 --restart unless-stopped zabbix/zabbix-server-mysql:alpine-7.0-latest
