@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Check if Zabbix Web container exists
-container_id_web=$(docker ps -a --filter "name=zabbix-web-nginx-mysql" --format "{{'{{'}}.ID{{'}}'}}")
+container_id_web=$(docker ps -a --filter "name=zabbix-web-nginx-mysql" | grep web | awk '{print $1}')
 
 # If container exists, remove it
 if [ -n "$container_id_web" ]; then
