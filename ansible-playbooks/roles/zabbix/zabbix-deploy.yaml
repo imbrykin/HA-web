@@ -56,8 +56,8 @@
       args:
         creates: /var/lib/mysql
 
-    - name: Wait for MySQL to be ready
-      command: sleep 20
+    # - name: Wait for MySQL to be ready
+    #   command: sleep 20
 
     - name: Check if MySQL container is running using template
       template:
