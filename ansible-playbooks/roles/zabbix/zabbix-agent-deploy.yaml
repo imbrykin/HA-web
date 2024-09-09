@@ -20,7 +20,7 @@
 
     - name: Install Zabbix Agent
       apt:
-        name: zabbix-agent
+        name: zabbix-agent2
         state: present
       when: dpkg_install.changed
 
@@ -47,11 +47,11 @@
 
     - name: Enable and start Zabbix Agent service
       systemd:
-        name: zabbix-agent
+        name: zabbix-agent2
         enabled: yes
         state: started
 
     - name: Restart Zabbix Agent to apply configuration changes
       service:
-        name: zabbix-agent
+        name: zabbix-agent2
         state: restarted
