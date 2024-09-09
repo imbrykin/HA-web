@@ -26,21 +26,21 @@
 
     - name: Configure Zabbix Agent to point to Zabbix server
       lineinfile:
-        path: /etc/zabbix/zabbix_agentd.conf
+        path: /etc/zabbix/zabbix_agent2.conf
         regexp: '^Server='
         line: 'Server=10.10.1.100'
         backup: yes
 
     - name: Configure Zabbix Agent for active checks to Zabbix server
       lineinfile:
-        path: /etc/zabbix/zabbix_agentd.conf
+        path: /etc/zabbix/zabbix_agent2.conf
         regexp: '^ServerActive='
         line: 'ServerActive=10.10.1.100'
         backup: yes
 
     - name: Set the hostname for Zabbix Agent
       lineinfile:
-        path: /etc/zabbix/zabbix_agentd.conf
+        path: /etc/zabbix/zabbix_agent2.conf
         regexp: '^Hostname='
         line: 'Hostname={{ inventory_hostname }}'
         backup: yes
