@@ -53,8 +53,8 @@
     - name: Start MySQL container
       command: >
         {{ lookup('template', '/HA-web/ansible-playbooks/templates/zabbix/start_mysql_container.j2') }}
-      args:
-        creates: /var/lib/mysql
+      # args:
+      #   creates: /var/lib/mysql
 
     # - name: Wait for MySQL to be ready
     #   command: sleep 20
