@@ -1,47 +1,45 @@
 ---
-- name: Install and configure Elasticsearch on Ubuntu 24.04
+- name: Install and configure Elasticsearch on Docker
   hosts: elastic.internal-cloud
   become: yes
   tasks:
-
-    - name: Add the Elasticsearch GPG key
-      apt_key:
-        url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-        state: present
-
-    - name: Add the Elastic repository
-      apt_repository:
-        repo: "deb https://artifacts.elastic.co/packages/8.x/apt stable main"
-        state: present
-        filename: 'elastic-8.x'
-
-    - name: Update apt cache
+    - name: Ensure Docker is installed
       apt:
+        name: docker.io
+        state: present
         update_cache: yes
 
-    - name: Install Elasticsearch
-      apt:
-        name: elasticsearch
-        state: present
-
-    - name: Enable Elasticsearch service
+    - name: Start Docker service
       systemd:
-        name: elasticsearch
+        name: docker
         enabled: yes
         state: started
 
-    - name: Configure Elasticsearch (optional)
-      template:
-        src: templates/elasticsearch/elasticsearch.yml.j2
-        dest: /etc/elasticsearch/elasticsearch.yml
-        owner: elasticsearch
-        group: elasticsearch
-        mode: 0644
-      notify:
-        - Restart Elasticsearch
+    - name: Pull Elasticsearch Docker image
+      docker_image:
+        name: docker.elastic.co/elasticsearch/elasticsearch
+        tag: 8.5.0
+        source: pull
 
-  handlers:
-    - name: Restart Elasticsearch
-      systemd:
+    - name: Render Elasticsearch configuration from template
+      template:
+        src: templates/ELK/elasticsearch.yml.j2
+        dest: /opt/elasticsearch/config/elasticsearch.yml
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Run Elasticsearch container
+      docker_container:
         name: elasticsearch
-        state: restarted
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
+        state: started
+        restart_policy: always
+        ports:
+          - "9200:9200"
+          - "9300:9300"
+        volumes:
+          - /opt/elasticsearch/data:/usr/share/elasticsearch/data
+          - /opt/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+
+
