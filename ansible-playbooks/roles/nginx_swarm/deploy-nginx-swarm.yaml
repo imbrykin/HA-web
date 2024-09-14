@@ -17,6 +17,12 @@
       when: nginx_service_check.stdout != ""
       ignore_errors: false
 
+    - name: Re-check if nginx service exists on manager after removal
+      command: docker service ls --filter name=nginx -q
+      register: nginx_service_check
+      failed_when: false
+      changed_when: false
+
     - name: Get local IP on all nodes
       shell: ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
       register: local_ip
@@ -50,7 +56,7 @@
         --mount type=bind,src=/etc/nginx.files/index.html,dst=/usr/share/nginx/html/index.html,readonly 
         --mount type=bind,src=/etc/nginx.files/styles.css,dst=/usr/share/nginx/html/styles.css,readonly
         nginx:latest
-      #when: nginx_service_check.stdout != "" or nginx_service_check.stdout == ""
+      when: nginx_service_check.stdout == ""
 
 - name: Deploy nginx files on all Docker Swarm worker nodes
   hosts: docker_swarm_workers
