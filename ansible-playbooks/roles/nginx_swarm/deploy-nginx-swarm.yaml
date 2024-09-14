@@ -50,9 +50,9 @@
         --mount type=bind,src=/etc/nginx.files/index.html,dst=/usr/share/nginx/html/index.html,readonly 
         --mount type=bind,src=/etc/nginx.files/styles.css,dst=/usr/share/nginx/html/styles.css,readonly
         nginx:latest
-      when: nginx_service_check.stdout != "" or nginx_service_check.stdout == ""
+      #when: nginx_service_check.stdout != "" or nginx_service_check.stdout == ""
 
-- name: Deploy nginx files on all Docker Swarm nodes
+- name: Deploy nginx files on all Docker Swarm worker nodes
   hosts: docker_swarm_workers
   become: yes
   tasks:
