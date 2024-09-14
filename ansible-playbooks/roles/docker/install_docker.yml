@@ -13,7 +13,7 @@
       apt:
         name: gnupg
         state: present
-        tags: gnupg
+      tags: gnupg
 
     - name: Install required packages
       apt:
@@ -23,26 +23,26 @@
           - curl
           - software-properties-common
         state: present
-        tags: packages
+      tags: packages
 
     - name: Add Docker GPG key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
-        tags: gpg
+      tags: gpg
 
     - name: Add Docker APT repository
       apt_repository:
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
         state: present
-        task: repo
+      task: repo
 
     - name: Install Docker
       apt:
         name: docker-ce
         update_cache: yes
         state: present
-        tags: docker-ce
+      tags: docker-ce
 
 - name: Initialize Docker Swarm
   hosts: docker_swarm_manager
