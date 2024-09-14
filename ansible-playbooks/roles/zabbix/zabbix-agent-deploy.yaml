@@ -1,6 +1,6 @@
 ---
 - name: Install and configure Zabbix Agent on all nodes
-  hosts: docker_swarm_manager,docker_swarm_workers,elk
+  hosts: docker_swarm_manager,docker_swarm_workers,elk,bastion,monitoring
   become: yes
   tasks:
     - name: Download Zabbix release package
