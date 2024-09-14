@@ -16,6 +16,18 @@
       command: docker service rm nginx
       when: nginx_service_check.stdout != ""
       ignore_errors: false
+    
+    - name: Create nginx directory in /etc/nginx.files (if necessary)
+      file:
+        path: /etc/nginx.files
+        state: directory
+        mode: '0755'
+
+    - name: Copy CSS file from the repository to the nginx directory
+      copy:
+        src: '/HA-web/ansible-playbooks/templates/nginx.files/styles.css'
+        dest: "/etc/nginx.files/styles.css"
+        mode: '0644'
 
     - name: Create nginx service in Docker Swarm (on manager)
       command: >
@@ -36,25 +48,19 @@
     - name: Pull nginx image on all nodes
       command: docker pull nginx:latest
 
-    - name: Get local IP on all nodes
-      shell: ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
-      register: local_ip
-      changed_when: false
+    # - name: Get local IP on all nodes
+    #   shell: ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
+    #   register: local_ip
+    #   changed_when: false
 
-    - name: Create nginx directory in /etc/nginx.files (if necessary)
-      file:
-        path: /etc/nginx.files
-        state: directory
-        mode: '0755'
-
-    - name: Create custom index.html with local IP from the template
-      template:
-        src: '/HA-web/ansible-playbooks/templates/nginx.files/index.html.j2'
-        dest: "/etc/nginx.files/index.html"
-        mode: '0644'
-
-    - name: Copy CSS file from the repository to the nginx directory
-      copy:
-        src: '/HA-web/ansible-playbooks/templates/nginx.files/styles.css'
-        dest: "/etc/nginx.files/styles.css"
-        mode: '0644'
+    # - name: Create custom index.html with local IP from the template
+    #   template:
+    #     src: '/HA-web/ansible-playbooks/templates/nginx.files/index.html.j2'
+    #     dest: "/etc/nginx.files/index.html"
+    #     mode: '0644'
+    
+    # - name: Copy CSS file from the repository to the nginx directory
+    #   copy:
+    #     src: '/HA-web/ansible-playbooks/templates/nginx.files/styles.css'
+    #     dest: "/etc/nginx.files/styles.css"
+    #     mode: '0644'
