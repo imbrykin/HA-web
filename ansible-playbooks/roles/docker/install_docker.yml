@@ -7,11 +7,13 @@
       apt:
         update_cache: yes
         cache_valid_time: 3600
+      tags: aptcache 
 
     - name: Install gnupg for GPG key handling
       apt:
         name: gnupg
         state: present
+        tags: gnupg
 
     - name: Install required packages
       apt:
@@ -21,22 +23,26 @@
           - curl
           - software-properties-common
         state: present
+        tags: packages
 
     - name: Add Docker GPG key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
+        tags: gpg
 
     - name: Add Docker APT repository
       apt_repository:
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
         state: present
+        task: repo
 
     - name: Install Docker
       apt:
         name: docker-ce
         update_cache: yes
         state: present
+        tags: docker-ce
 
 - name: Initialize Docker Swarm
   hosts: docker_swarm_manager
@@ -47,22 +53,26 @@
       register: swarm_status
       ignore_errors: no
       failed_when: false
+      tags: swarm
 
     - name: Initialize Docker Swarm using predefined IP
       command: docker swarm init --advertise-addr {{ swarm_manager_ip }}
       when: swarm_status.stdout is defined and swarm_status.stdout != "active"
       ignore_errors: no
       register: swarm_result
+      tags: swarminit
 
     - name: Get Swarm join token for workers
       command: docker swarm join-token -q worker
       register: worker_token
       failed_when: worker_token.stdout is not defined
+      tags: swarmtoken
 
     - name: Set worker token as global var
       set_fact:
         global_swarm_worker_token: "{{ worker_token.stdout }}"
       when: worker_token.stdout is defined
+      tags: storetoken
 
 - name: Join Swarm as worker
   hosts: docker_swarm_workers
@@ -73,8 +83,10 @@
       register: swarm_status
       ignore_errors: yes
       failed_when: false
+      tags: checknode
 
     - name: Join Swarm cluster
       command: docker swarm join --token {{ hostvars['web1.internal-cloud']['global_swarm_worker_token'] }} {{ hostvars['web1.internal-cloud']['swarm_manager_ip'] }}:2377
       when: swarm_status.stdout != "active"
       ignore_errors: no
+      tags: joinworker
