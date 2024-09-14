@@ -207,6 +207,27 @@ resource "yandex_vpc_security_group" "internal_bastion_sg" {
     v4_cidr_blocks    = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description       = "Elastic-api"
+    protocol          = "TCP"
+    port              = 9200
+    predefined_target = "self_security_group"
+  }
+
+  ingress {
+    description       = "Elastic-inter"
+    protocol          = "TCP"
+    port              = 9300
+    predefined_target = "self_security_group"
+  }
+
+  ingress {
+    description       = "Kibana-web"
+    protocol          = "TCP"
+    port              = 5601
+    predefined_target = "self_security_group"
+  }
+
   egress {
     description    = "All-out"
     protocol       = "ANY"

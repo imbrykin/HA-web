@@ -1,0 +1,38 @@
+---
+- name: Install and configure Filebeat on Docker Swarm nodes
+  hosts: docker_swarm_manager, docker_swarm_workers
+  become: yes
+  tasks:
+    - name: Add the Elastic APT repository
+      apt_repository:
+        repo: "deb https://artifacts.elastic.co/packages/8.x/apt stable main"
+        state: present
+        filename: 'elastic-8.x'
+
+    - name: Install Filebeat
+      apt:
+        name: filebeat
+        state: present
+        update_cache: yes
+
+    - name: Configure Filebeat
+      template:
+        src: templates/elasticsearch/filebeat.yml.j2
+        dest: /etc/filebeat/filebeat.yml
+        owner: root
+        group: root
+        mode: 0644
+      notify:
+        - Restart Filebeat
+
+    - name: Enable and start Filebeat
+      systemd:
+        name: filebeat
+        enabled: yes
+        state: started
+
+  handlers:
+    - name: Restart Filebeat
+      systemd:
+        name: filebeat
+        state: restarted

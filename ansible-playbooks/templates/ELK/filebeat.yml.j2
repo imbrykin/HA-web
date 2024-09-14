@@ -1,0 +1,19 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/lib/docker/containers/*/*-json.log
+    exclude_files: ['\.gz$']
+    json.message_key: message
+    json.keys_under_root: true
+
+output.elasticsearch:
+  hosts: ["http://{{ hostvars['elastic.internal-cloud'].ansible_host }}:9200"]
+
+setup.kibana:
+  host: "http://{{ hostvars['kibana.internal-cloud'].ansible_host }}:5601"
+  
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
