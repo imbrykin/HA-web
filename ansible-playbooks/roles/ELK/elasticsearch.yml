@@ -3,18 +3,26 @@
   hosts: elastic.internal-cloud
   become: yes
   tasks:
-    - name: Ensure Docker is installed
+    - name: Check if containerd.io is installed
+      shell: dpkg -l | grep containerd.io
+      register: containerd_installed
+      ignore_errors: true
+
+    - name: Remove containerd.io if installed
+      apt:
+        name: containerd.io
+        state: absent
+      when: containerd_installed.rc == 0
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Docker if not already installed
       apt:
         name: docker.io
         state: present
-        update_cache: yes
-
-    - name: Start Docker service
-      systemd:
-        name: docker
-        enabled: yes
-        state: started
-
+        
     - name: Pull Elasticsearch Docker image
       community.docker.docker_image:
         name: docker.elastic.co/elasticsearch/elasticsearch
