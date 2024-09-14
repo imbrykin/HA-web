@@ -1,11 +1,11 @@
 variable "cloud_id" {
   description = "ID of the cloud."
-  default     = "b1gaiq9iahfd9gh90fdp"
+  default     = "b1gkl2koquua6hvdpjdk"
 }
 
 variable "folder_bastion" {
   description = "ID of the folder for bastion."
-  default     = "b1g9mfafl1aghlq69tc5"
+  default     = "b1g7ehk4ptuvi1c32r6v"
 }
 
 variable "network_bastion_internal" {
