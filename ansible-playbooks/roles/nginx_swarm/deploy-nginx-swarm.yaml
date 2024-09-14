@@ -56,9 +56,11 @@
         --mount type=bind,src=/etc/nginx.files/styles.css,dst=/usr/share/nginx/html/styles.css,readonly
         nginx:latest
       when: nginx_service_check.stdout == ""
+      async: 30  # Таймаут 30 секунд
+      poll: 10    # Интервал проверки состояния
 
 - name: Deploy nginx files on all Docker Swarm worker nodes
-  hosts: docker_swarm_workers
+  hosts: docker_swarm_manager, docker_swarm_workers
   become: yes
   tasks:
     - name: Pull nginx image on all nodes
