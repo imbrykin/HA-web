@@ -52,7 +52,6 @@
         --name nginx 
         --mode global 
         --publish published=80,target=80
-        --publish published=443,target=443 
         --mount type=bind,src=/etc/nginx.files/index.html,dst=/usr/share/nginx/html/index.html,readonly 
         --mount type=bind,src=/etc/nginx.files/styles.css,dst=/usr/share/nginx/html/styles.css,readonly
         nginx:latest
