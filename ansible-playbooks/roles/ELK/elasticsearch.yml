@@ -3,11 +3,6 @@
   hosts: elastic.internal-cloud
   become: yes
   tasks:
-    - name: Install community.docker collection
-      ansible.builtin.command:
-        cmd: ansible-galaxy collection install community.docker
-      changed_when: false
-
     - name: Ensure Docker is installed
       apt:
         name: docker.io
