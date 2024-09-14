@@ -16,6 +16,11 @@
       command: docker service rm nginx
       when: nginx_service_check.stdout != ""
       ignore_errors: false
+
+    - name: Get local IP on all nodes
+      shell: ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
+      register: local_ip
+      changed_when: false
     
     - name: Create nginx directory in /etc/nginx.files (if necessary)
       file:
@@ -48,17 +53,16 @@
       when: nginx_service_check.stdout != "" or nginx_service_check.stdout == ""
 
 - name: Deploy nginx files on all Docker Swarm nodes
-  #hosts: docker_swarm_manager,docker_swarm_workers
   hosts: docker_swarm_workers
   become: yes
   tasks:
     - name: Pull nginx image on all nodes
       command: docker pull nginx:latest
 
-    # - name: Get local IP on all nodes
-    #   shell: ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
-    #   register: local_ip
-    #   changed_when: false
+    - name: Get local IP on all nodes
+      shell: ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
+      register: local_ip
+      changed_when: false
     
     - name: Create nginx directory in /etc/nginx.files (if necessary)
       file:
