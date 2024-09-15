@@ -55,7 +55,7 @@
 
 5. После успешного деплоя инфраструктуры, нужно привязать таблицу маршрутизации `web-routing-table` к внутренним сегментам сети.
 
-6.  на всех хостах с публичным IP в `/etc/netplan/50-cloud-init.yaml` необходимо отключить обновление маршрутов по DHCP для интерфейса `eth0`:
+6. На всех хостах с публичным IP в `/etc/netplan/50-cloud-init.yaml` необходимо отключить обновление маршрутов по DHCP для интерфейса `eth0`:
 
     ```bash
     eth0:
@@ -67,11 +67,12 @@
 
 *Можно создать файл, который явно будет запрещать обновление маршрутов по DHCP:*
 
-```bash
-$ cat /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
-network: {config: disabled}
-```
-7. Перед запуском ansible-playbook, нужно записать публичный ключ к бастиону. Подключившись к нему, нужно записать публичных ключ в known_hosts для каждого хоста схемы.
+    ```bash
+    $ cat /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+    network: {config: disabled}
+    ```
+    
+7. Перед запуском `ansible-playbook`, нужно записать публичный ключ к бастиону. Подключившись к нему, нужно записать публичный ключ каждого хоста схемы в `known_hosts` bastion-хоста для юзера `user`.
 
 8. Если доменное имя бастиона приватное, то внутри контейнера в файле `/etc/hosts` прописать IP и домен бастион-хоста.
 
@@ -81,44 +82,56 @@ network: {config: disabled}
 ### Описание файлов
 
 1. **`inventory.ini`**:
-    - Файл инвентаря, который содержит описание всех серверов, используемых в инфраструктуре. Серверы сгруппированы по ролям: веб-серверы, мониторинг, сбор логов и т.д.
+    - Файл инвентаря, который содержит описание всех серверов, используемых в инфраструктуре. 
+    - Серверы сгруппированы по ролям: веб-серверы, мониторинг, сбор логов и т.д.
     - Пример структуры:
       ```ini
-      [web]
-      web1.internal-cloud
-      web2.internal-cloud
+        [docker_swarm_manager]
+        web1.internal-cloud 
 
-      [monitoring]
-      zabbix.internal-cloud
+        [docker_swarm_workers]
+        web2.internal-cloud 
+        web3.internal-cloud 
 
-      [elk]
-      elastic.internal-cloud
-      kibana.internal-cloud
+        [bastion]
+        bastion.internal-cloud 
 
-      [bastion]
-      bastion.internal-cloud
+        [monitoring]
+        zabbix.internal-cloud 
+
+        [elk]
+        elastic.internal-cloud
+        kibana.internal-cloud
       ```
 
 2. **Роли и шаблоны**:
     - **`roles/`** — содержит роли для автоматизации установки и настройки сервисов:
-        - **`nginx`** — настройка и установка NGINX на веб-серверах.
-        - **`zabbix`** — установка Zabbix Server и агентов на все сервера для мониторинга.
-        - **`elasticsearch`**, **`kibana`** — установка и настройка Elasticsearch и Kibana для сбора и анализа логов.
-    - **`templates/`** — содержит шаблоны конфигурационных файлов для сервисов (например, конфигурационные файлы для Zabbix, NGINX).
+        - **`docker`** — настройка и установка docker на хостах.
+        - **`ELK`** — установка и настройка Elasticsearch, Kibana и Filebeat для сбора, анализа и отправки логов.
+        - **`nginx_swarm`** — настройка и установка NGINX на веб-серверах в кластерной среде Docker-swarm.
+        - **`zabbix`** — установка Zabbix Server в docker-контейнере и агентов на все сервера.
+    - **`templates/`** — содержит шаблоны конфигурационных файлов для сервисов (например, конфигурационные файлы для Zabbix, Docker).
 
 ### Пример запуска
 1. Подготовка инфраструктуры с помощью Terraform.
-2. Запуск плейбук Ansible для настройки веб-серверов:
+2. Запуск Ansible playbook для установки Docker на нужных хостах.
     ```bash
-    ansible-playbook -i inventory.ini roles/nginx.yml
+    ansible-playbook -i inventory.ini roles/docker/install_docker.yml -v
     ```
-3. Настройка мониторинга с помощью Zabbix:
+3. Установка nginx в Docker-swarm на веб-хостах:
     ```bash
-    ansible-playbook -i inventory.ini roles/zabbix.yml
+    ansible-playbook -i inventory.ini roles/nginx_swarm/deploy-nginx-swarm.yaml
     ```
-4. Настройка сбора логов с помощью Elasticsearch и Kibana:
+4. Настройка мониторинга с помощью Zabbix:
     ```bash
-    ansible-playbook -i inventory.ini roles/elk.yml
+    ansible-playbook -i inventory.ini roles/zabbix-deploy.yaml
+    ansible-playbook -i inventory.ini roles/zabbix-agent-deploy.yaml
+    ```
+5. Настройка сбора логов с помощью Elasticsearch и Kibana:
+    ```bash
+    ansible-playbook -i inventory.ini roles/ELK/elasticsearch.yml
+    ansible-playbook -i inventory.ini roles/ELK/filebeat.yml
+    ansible-playbook -i inventory.ini roles/ELK/kibana.yml
     ```
 ---
 
@@ -130,18 +143,18 @@ network: {config: disabled}
 
 3. После деплоя Elastic / Kibana / Filebeat, для генерации пароля выполняем на ноде с `elastic`:
 
-```bash
-docker exec -it <container id> /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
-```
+    ```bash
+    docker exec -it <container id> /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
+    ```
 
 Будет выдан пароль для супер-юзера `elastic`.
 
 4. Для генерации `SERVICE_TOKEN`, который нужен для авторизации Kibana к Elasticsearch, нужно использовать скрипт `/usr/share/elasticsearch/bin/elasticsearch-service-tokens`
 
-```bash
-root@elastic:/home/user# docker exec -it 21ca99098351 /usr/share/elasticsearch/bin/elasticsearch-service-tokens create elastic/kibana kibana-token
-SERVICE_TOKEN elastic/kibana/kibana-token = <your secret token here>
-```
+    ```bash
+    root@elastic:/home/user# docker exec -it 21ca99098351 /usr/share/elasticsearch/bin/elasticsearch-service-tokens create elastic/kibana kibana-token
+    SERVICE_TOKEN elastic/kibana/kibana-token = <your secret token here>
+    ```
 Данный токен нужно использовать на хосте `kibana.internal-cloud` в конфиг-файле `/opt/kibana/config/kibana.yml`, параметр `elasticsearch.serviceAccountToken: ""`
 
 После его добавления, необходимо перезапустить контейнер: `docker restart kibana`.
@@ -186,11 +199,11 @@ SERVICE_TOKEN elastic/kibana/kibana-token = <your secret token here>
 
 Пример работы:
 
-```bash
-curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
-10.11.0.10
-curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
-10.12.0.10
-curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
-10.10.0.10
-```
+    ```bash
+    curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
+    10.11.0.10
+    curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
+    10.12.0.10
+    curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
+    10.10.0.10
+    ```
