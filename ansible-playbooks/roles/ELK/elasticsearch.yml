@@ -37,12 +37,12 @@
       register: elasticsearch_container
       ignore_errors: true
 
-    - name: Remove existing filebeat service if it exists
+    - name: Remove existing Elasticsearch service if it exists
       command: docker rm elasticsearch --force
       when: elasticsearch_container.stdout != ""
-      ignore_errors: false
+      ignore_errors: yes
 
-    - name: Re-check if filebeat service exists after removal
+    - name: Re-check if Elasticsearch service exists after removal
       command: docker ps --filter "name=elasticsearch"
       register: elasticsearch_container
       failed_when: false
