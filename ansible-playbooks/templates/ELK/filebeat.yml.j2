@@ -1,19 +1,34 @@
 filebeat.inputs:
   - type: log
-    enabled: true
+    id: nginx
     paths:
-      - /var/lib/docker/containers/*/*-json.log
-    exclude_files: ['\.gz$']
-    json.message_key: message
-    json.keys_under_root: true
+      - /var/lib/docker/containers/*/*.log
+    processors:
+      - decode_json_fields:
+          fields: ["log"]
+          target: ""
+          overwrite_keys: true
+      - add_host_metadata: ~
+      - drop_fields:
+          fields: ["host.architecture", "host.os", "host.containerized", "host.id", "host.ip", "host.mac", "host.os", "host.hostname"]
+      - drop_event:
+          when:
+            not:
+              and:
+                - contains:
+                    message: "log"
+                - contains:
+                    message: "HTTP"
 
 output.elasticsearch:
-  hosts: ["http://{{ hostvars['elastic.internal-cloud'].ansible_host }}:9200"]
+  hosts: "https://elastic.internal-cloud:9200"
+  username: "elastic"
+  password: ""
+  ssl.verification_mode: "none"
 
 setup.kibana:
-  host: "http://{{ hostvars['kibana.internal-cloud'].ansible_host }}:5601"
-  
+  host: "http://kibana.internal-cloud:5601"
+
 processors:
   - add_host_metadata: ~
-  - add_cloud_metadata: ~
   - add_docker_metadata: ~

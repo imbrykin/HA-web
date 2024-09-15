@@ -27,7 +27,7 @@
       register: filebeat_container
       failed_when: false
       changed_when: false
-
+      
     - name: Ensure Filebeat config directory exists
       file:
         path: /opt/filebeat/config
