@@ -65,7 +65,7 @@
                     use-routes: false  # Отключаем обновление маршрутов через DHCP
     ```
 
-*Можно создать файл, который явно будет запрещать обновление маршрутов по DHCP:*
+7. Можно создать файл, который явно будет запрещать обновление маршрутов по DHCP:
 
     ```bash
     $ cat /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
@@ -199,11 +199,11 @@
 
 Пример работы:
 
-    ```bash
-    curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
-    10.11.0.10
-    curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
-    10.12.0.10
-    curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
-    10.10.0.10
-    ```
+```bash
+curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
+10.11.0.10
+curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
+10.12.0.10
+curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
+10.10.0.10
+```
