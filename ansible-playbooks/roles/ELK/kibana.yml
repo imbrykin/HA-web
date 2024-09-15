@@ -75,4 +75,4 @@
         volumes:
           - /opt/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
         env:
-          - ELASTICSEARCH_HOSTS=https://elastic.internal-cloud:9200
+          - ELASTICSEARCH_HOSTS: "https://elastic.internal-cloud:9200"
