@@ -23,12 +23,18 @@
         name: docker.io
         state: present
 
-    - name: Pull Elasticsearch image
+    - name: Check if Elasticsearch image is already pulled
+      command: docker images -q elasticsearch:8.15.1
+      register: elasticsearch_image
+      ignore_errors: true
+
+    - name: Pull Elasticsearch image if not present
       command: docker pull elasticsearch:8.15.1
+      when: elasticsearch_image.stdout == ""
 
     - name: Render Elasticsearch configuration from template
       template:
-        src: templates/ELK/elasticsearch.yml.j2
+        src: /HA-web/ansible-playbooks/templates/ELK/elasticsearch.yml.j2
         dest: /opt/elasticsearch/config/elasticsearch.yml
         owner: root
         group: root
