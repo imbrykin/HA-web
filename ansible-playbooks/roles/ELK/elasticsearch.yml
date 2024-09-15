@@ -32,6 +32,21 @@
       command: docker pull elasticsearch:8.15.1
       when: elasticsearch_image.stdout == ""
 
+    - name: Check if Elasticsearch container is already pulled
+      command: docker ps --filter "name=elasticsearch"
+      register: elasticsearch_container
+      ignore_errors: true
+
+    - name: Remove existing filebeat service if it exists
+      command: docker rm elasticsearch --force
+      when: elasticsearch_container.stdout != ""
+      ignore_errors: false
+
+    - name: Re-check if filebeat service exists after removal
+      command: docker ps --filter "name=elasticsearch"
+      register: elasticsearch_container
+      failed_when: false
+
     - name: Ensure Elasticsearch config directory exists
       file:
         path: /opt/elasticsearch/config
