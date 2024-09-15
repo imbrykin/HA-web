@@ -1,6 +1,6 @@
 ---
 - name: Update APT cache, Install Docker and Dependencies on Ubuntu
-  hosts: all
+  hosts: docker_swarm_manager, docker_swarm_workers
   become: yes
   tasks:
     - name: Update APT cache
