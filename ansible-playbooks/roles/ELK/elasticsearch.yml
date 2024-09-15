@@ -24,7 +24,7 @@
         state: present
 
     - name: Pull Elasticsearch image
-      command: docker pull elasticsearch
+      command: docker pull elasticsearch:8.15.1
 
     - name: Render Elasticsearch configuration from template
       template:
