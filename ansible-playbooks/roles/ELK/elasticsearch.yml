@@ -32,6 +32,14 @@
       command: docker pull elasticsearch:8.15.1
       when: elasticsearch_image.stdout == ""
 
+    - name: Ensure Elasticsearch config directory exists
+      file:
+        path: /opt/elasticsearch/config
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
     - name: Render Elasticsearch configuration from template
       template:
         src: /HA-web/ansible-playbooks/templates/ELK/elasticsearch.yml.j2
