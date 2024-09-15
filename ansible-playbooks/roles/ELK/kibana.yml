@@ -1,56 +1,63 @@
 ---
-- name: Install and configure Kibana
+- name: Install and configure Kibana in Docker
   hosts: kibana.internal-cloud
   become: yes
   tasks:
-    - name: Add Elastic APT repository
-      apt_repository:
-        repo: "deb https://artifacts.elastic.co/packages/8.x/apt stable main"
-        state: present
-        filename: 'elastic-8.x'
+    - name: Check if containerd.io is installed
+      shell: dpkg -l | grep containerd.io
+      register: containerd_installed
+      ignore_errors: true
 
-    - name: Install Kibana
+    - name: Remove containerd.io if installed
       apt:
-        name: kibana
-        state: present
+        name: containerd.io
+        state: absent
+      when: containerd_installed.rc == 0
+
+    - name: Update apt cache
+      apt:
         update_cache: yes
 
-    - name: Configure Kibana
+    - name: Install Docker if not already installed
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Check if Elasticsearch image is already pulled
+      command: docker images -q kibana:8.15.1
+      register: kibana_image
+      ignore_errors: true
+
+    - name: Pull Elasticsearch image if not present
+      command: docker pull kibana:8.15.1
+      when: kibana_image.stdout == ""
+
+    - name: Ensure Kibana config directory exists
+      file:
+        path: /opt/kibana/config
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Render Kibana configuration from template
       template:
-        src: templates/kibana.yml.j2
-        dest: /etc/kibana/kibana.yml
-        owner: kibana
-        group: kibana
+        src: /HA-web/ansible-playbooks/templates/ELK/kibana.yml.j2
+        dest: /opt/kibana/config/kibana.yml
+        owner: root
+        group: root
         mode: 0644
-      notify:
-        - Restart Kibana
 
-    - name: Set Kibana credentials in kibana.yml
-      lineinfile:
-        path: /etc/kibana/kibana.yml
-        insertafter: EOF
-        create: yes
-        line: "{{ item }}"
-      loop:
-        - 'elasticsearch.username: "kibana_system"'
-        - 'elasticsearch.password: "D7daU5h41C2rKd24"'
-
-    - name: Enable and start Kibana service
-      systemd:
+    - name: Run Kibana container
+      community.docker.docker_container:
         name: kibana
-        enabled: yes
+        image: kibana:8.15.1
         state: started
+        restart_policy: always
+        ports:
+          - "5601:5601"
+        volumes:
+          - /opt/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
 
-    - name: Generate Kibana enrollment token
-      command: /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
-      register: kibana_token
-
-    - name: Display Kibana enrollment token
-      debug:
-        msg: "Kibana Enrollment Token: {{ kibana_token.stdout }}"
-
-  handlers:
-    - name: Restart Kibana
-      systemd:
-        name: kibana
-        state: restarted
+    - name: Display Kibana container status
+      command: docker ps | grep kibana
