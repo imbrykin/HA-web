@@ -31,7 +31,7 @@
     - name: Remove existing kibana service if it exists
       command: docker rm kibana --force
       when: kibana_container.stdout != ""
-      ignore_errors: false
+      ignore_errors: true
 
     - name: Re-check if kibana service exists after removal
       command: docker ps --filter "name=kibana"
