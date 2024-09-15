@@ -23,12 +23,28 @@
         name: docker.io
         state: present
 
-    - name: Check if Elasticsearch image is already pulled
+    - name: Check if Kibana image is already pulled
       command: docker images -q kibana:8.15.1
-      register: kibana_image
+      register: kibana_container
       ignore_errors: true
 
-    - name: Pull Elasticsearch image if not present
+    - name: Remove existing kibana service if it exists
+      command: docker service rm kibana --force
+      when: kibana_container.stdout != ""
+      ignore_errors: false
+
+    - name: Re-check if kibana service exists after removal
+      command: docker service ls --filter name=kibana -q
+      register: kibana_container
+      failed_when: false
+      changed_when: false
+
+    - name: Check if kibana image is existing
+      command: docker image ls --filter "reference=kibana"
+      register: kibana_image
+      ignore_errors: false
+
+    - name: Pull Kibana image if not present
       command: docker pull kibana:8.15.1
       when: kibana_image.stdout == ""
 
