@@ -22,12 +22,9 @@
       apt:
         name: docker.io
         state: present
-        
-    - name: Pull Elasticsearch Docker image
-      community.docker.docker_image:
-        name: docker.elastic.co/elasticsearch/elasticsearch
-        tag: 8.5.0
-        source: pull
+
+    - name: Pull Elasticsearch image
+      command: docker pull elasticsearch
 
     - name: Render Elasticsearch configuration from template
       template:
