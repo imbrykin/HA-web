@@ -537,8 +537,8 @@ resource "yandex_compute_instance" "kibana" {
   zone        = "ru-central1-a"
   hostname    = "kibana"
   resources {
-    cores  = 2
-    memory = 2
+    cores  = 4
+    memory = 4
   }
   boot_disk {
     initialize_params {
