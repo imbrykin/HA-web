@@ -67,7 +67,7 @@
 
 7. Можно создать файл, который явно будет запрещать обновление маршрутов по DHCP:
 
-    ```bash
+    ```
     $ cat /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
     network: {config: disabled}
     ```
@@ -199,7 +199,7 @@
 
 Пример работы:
 
-```bash
+```
 curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
 10.11.0.10
 curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
