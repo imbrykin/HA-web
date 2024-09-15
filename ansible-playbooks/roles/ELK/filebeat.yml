@@ -34,7 +34,7 @@
         state: directory
         owner: root
         group: root
-        mode: '0755'
+        mode: '0777'
 
     - name: Render Filebeat configuration from template
       template:
@@ -42,7 +42,14 @@
         dest: /opt/filebeat/config/filebeat.yml
         owner: root
         group: root
-        mode: 0644
+        mode: 0777
+
+    - name: Set permissions for Docker log directory
+      file:
+        path: /var/lib/docker/containers
+        state: directory
+        mode: '0777'
+        recurse: yes
 
     - name: Run Filebeat container
       community.docker.docker_container:
