@@ -23,18 +23,18 @@
         name: docker.io
         state: present
 
-    - name: Check if Kibana image is already pulled
-      command: docker images -q kibana:8.15.1
+    - name: Check if Kibana container is already pulled
+      command: docker ps --filter "name=kibana"
       register: kibana_container
       ignore_errors: true
 
     - name: Remove existing kibana service if it exists
-      command: docker service rm kibana --force
+      command: docker rm kibana --force
       when: kibana_container.stdout != ""
       ignore_errors: false
 
     - name: Re-check if kibana service exists after removal
-      command: docker service ls --filter name=kibana -q
+      command: docker ps --filter "name=kibana"
       register: kibana_container
       failed_when: false
       changed_when: false
