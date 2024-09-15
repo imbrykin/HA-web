@@ -40,7 +40,7 @@
         group: root
         mode: '0766'
 
-    - name: Ensure Elasticsearch config directory exists
+    - name: Ensure Elasticsearch log directory exists
       file:
         path: /var/log/elasticsearch/
         state: directory
@@ -68,4 +68,4 @@
         volumes:
           - /opt/elasticsearch/data:/usr/share/elasticsearch/data
           - /opt/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-          - /var/log/elasticsearch/:/var/log/elasticsearch/
+          - /var/log/elasticsearch:/var/log/elasticsearch
