@@ -64,14 +64,6 @@
         group: root
         mode: 0766
 
-    - name: Stop existing Kibana container if running
-      community.docker.docker_container:
-        name: kibana
-        state: stopped
-        force_kill: yes
-      when: docker_container_info.kibana.state == "running"
-      ignore errors: true
-
     - name: Run Kibana container with custom config
       community.docker.docker_container:
         name: kibana
