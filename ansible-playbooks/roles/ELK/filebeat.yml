@@ -1,38 +1,61 @@
 ---
-- name: Install and configure Filebeat on Docker Swarm nodes
+- name: Install and configure Filebeat in Docker on Swarm nodes
   hosts: docker_swarm_manager, docker_swarm_workers
   become: yes
   tasks:
-    - name: Add the Elastic APT repository
-      apt_repository:
-        repo: "deb https://artifacts.elastic.co/packages/8.x/apt stable main"
-        state: present
-        filename: 'elastic-8.x'
 
-    - name: Install Filebeat
+    - name: Check if containerd.io is installed
+      shell: dpkg -l | grep containerd.io
+      register: containerd_installed
+      ignore_errors: true
+
+    - name: Remove containerd.io if installed
       apt:
-        name: filebeat
-        state: present
+        name: containerd.io
+        state: absent
+      when: containerd_installed.rc == 0
+
+    - name: Update apt cache
+      apt:
         update_cache: yes
 
-    - name: Configure Filebeat
+    - name: Install Docker if not already installed
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Check if Filebeat image is already pulled
+      command: docker images -q elastic/filebeat:8.15.1
+      register: filebeat_image
+      ignore_errors: true
+
+    - name: Pull Filebeat image if not present
+      command: docker pull elastic/filebeat:8.15.1
+      when: filebeat_image.stdout == ""
+
+    - name: Ensure Filebeat config directory exists
+      file:
+        path: /opt/filebeat/config
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Render Filebeat configuration from template
       template:
-        src: templates/elasticsearch/filebeat.yml.j2
-        dest: /etc/filebeat/filebeat.yml
+        src: /HA-web/ansible-playbooks/templates/ELK/filebeat.yml.j2
+        dest: /opt/filebeat/config/filebeat.yml
         owner: root
         group: root
         mode: 0644
-      notify:
-        - Restart Filebeat
 
-    - name: Enable and start Filebeat
-      systemd:
+    - name: Run Filebeat container
+      community.docker.docker_container:
         name: filebeat
-        enabled: yes
+        image: elastic/filebeat:8.15.1
         state: started
-
-  handlers:
-    - name: Restart Filebeat
-      systemd:
-        name: filebeat
-        state: restarted
+        restart_policy: always
+        volumes:
+          - /var/lib/docker/containers:/var/lib/docker/containers:ro
+          - /opt/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+        command: ["filebeat", "-e", "-strict.perms=false"]
