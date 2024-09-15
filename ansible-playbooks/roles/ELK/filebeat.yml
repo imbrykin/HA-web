@@ -12,6 +12,22 @@
       command: docker pull elastic/filebeat:8.15.1
       when: filebeat_image.stdout == ""
 
+    - name: Check if filebeat container is already pulled
+      command: docker ps --filter "name=elastic/filebeat"
+      register: filebeat_container
+      ignore_errors: true
+
+    - name: Remove existing filebeat service if it exists
+      command: docker rm elastic/filebeat --force
+      when: filebeat_container.stdout != ""
+      ignore_errors: false
+
+    - name: Re-check if filebeat service exists after removal
+      command: docker ps --filter "name=elastic/filebeat"
+      register: filebeat_container
+      failed_when: false
+      changed_when: false
+      
     - name: Ensure Filebeat config directory exists
       file:
         path: /opt/filebeat/config
