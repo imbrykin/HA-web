@@ -38,7 +38,15 @@
         state: directory
         owner: root
         group: root
-        mode: '0755'
+        mode: '0766'
+
+    - name: Ensure Elasticsearch config directory exists
+      file:
+        path: /var/log/elasticsearch/
+        state: directory
+        owner: root
+        group: root
+        mode: '0766'
 
     - name: Render Elasticsearch configuration from template
       template:
@@ -46,7 +54,7 @@
         dest: /opt/elasticsearch/config/elasticsearch.yml
         owner: root
         group: root
-        mode: 0644
+        mode: 0666
 
     - name: Run Elasticsearch container
       community.docker.docker_container:
@@ -60,3 +68,4 @@
         volumes:
           - /opt/elasticsearch/data:/usr/share/elasticsearch/data
           - /opt/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+          - /var/log/elasticsearch/:/var/log/elasticsearch/

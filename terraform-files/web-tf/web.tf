@@ -257,6 +257,12 @@ resource "yandex_vpc_security_group" "external_bastion_sg" {
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "Kibana-web"
+    protocol    = "TCP"
+    port       = 5601
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     description = "All-out"
