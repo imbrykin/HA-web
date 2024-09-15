@@ -3,27 +3,6 @@
   hosts: docker_swarm_manager, docker_swarm_workers
   become: yes
   tasks:
-
-    - name: Check if containerd.io is installed
-      shell: dpkg -l | grep containerd.io
-      register: containerd_installed
-      ignore_errors: true
-
-    - name: Remove containerd.io if installed
-      apt:
-        name: containerd.io
-        state: absent
-      when: containerd_installed.rc == 0
-
-    - name: Update apt cache
-      apt:
-        update_cache: yes
-
-    - name: Install Docker if not already installed
-      apt:
-        name: docker.io
-        state: present
-
     - name: Check if Filebeat image is already pulled
       command: docker images -q elastic/filebeat:8.15.1
       register: filebeat_image
