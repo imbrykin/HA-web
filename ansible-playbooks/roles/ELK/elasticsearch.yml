@@ -89,7 +89,7 @@
 
     - name: Generate log4j2.properties from Jinja2 template
       template:
-        src: templates/log4j2.properties.j2
+        src: /HA-web/ansible-playbooks/templates/ELK/log4j2.properties.j2
         dest: /opt/elasticsearch/config/log4j2.properties
         owner: 1000
         group: 1000
