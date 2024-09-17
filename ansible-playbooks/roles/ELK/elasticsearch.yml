@@ -53,7 +53,7 @@
         state: directory
         owner: root
         group: root
-        mode: '0766'
+        mode: 0777
 
     - name: Ensure Elasticsearch data directory exists
       file:
@@ -61,7 +61,7 @@
         state: directory
         owner: root
         group: root
-        mode: '0766'
+        mode: 0777
 
     - name: Ensure Elasticsearch log directory exists
       file:
@@ -69,7 +69,7 @@
         state: directory
         owner: root
         group: root
-        mode: '0766'
+        mode: 0777
 
     - name: Render Elasticsearch configuration from template
       template:
@@ -77,7 +77,7 @@
         dest: /opt/elasticsearch/config/elasticsearch.yml
         owner: root
         group: root
-        mode: 0666
+        mode: 0777
 
     - name: Run Elasticsearch container
       community.docker.docker_container:
