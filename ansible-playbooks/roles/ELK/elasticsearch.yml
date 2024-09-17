@@ -71,6 +71,14 @@
         group: root
         mode: 0777
 
+    - name: Create elasticsearch log file
+      file:
+        path: /opt/elasticsearch/log/elastic.log
+        state: touch
+        owner: 1000
+        group: 1000
+        mode: 0666
+
     - name: Render Elasticsearch configuration from template
       template:
         src: /HA-web/ansible-playbooks/templates/ELK/elasticsearch.yml.j2
