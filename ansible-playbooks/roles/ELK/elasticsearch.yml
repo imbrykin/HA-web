@@ -61,7 +61,7 @@
         state: directory
         owner: root
         group: root
-        mode: '0777'
+        mode: '0766'
 
     - name: Ensure Elasticsearch log directory exists
       file:
@@ -88,7 +88,7 @@
         ports:
           - "9200:9200"
           - "9300:9300"
-        # volumes:
-        #   - /opt/elasticsearch/data:/usr/share/elasticsearch/data
-        #   - /opt/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-        #   - /opt/elasticsearch/log:/var/log/elasticsearch
+        volumes:
+          - /opt/elasticsearch/data:/usr/share/elasticsearch/data
+          - /opt/elasticsearch/log:/var/log
+          - /opt/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml

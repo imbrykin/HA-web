@@ -25,6 +25,12 @@ output.elasticsearch:
   username: "elastic"
   password: ""
   ssl.verification_mode: "none"
+  timeout: 90s
+  max_retries: -1
+  backoff:
+    init: 1s
+    max: 60s
+  keep_alive: 30s
 
 setup.kibana:
   host: "http://kibana.internal-cloud:5601"
@@ -33,3 +39,6 @@ processors:
   - add_host_metadata: ~
   - add_docker_metadata: ~
   - add_cloud_metadata: ~
+
+logging.level: info
+logging.selectors: ["*"]
