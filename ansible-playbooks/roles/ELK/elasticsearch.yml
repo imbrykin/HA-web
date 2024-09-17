@@ -87,6 +87,14 @@
         group: root
         mode: 0777
 
+    - name: Generate log4j2.properties from Jinja2 template
+      template:
+        src: templates/log4j2.properties.j2
+        dest: /opt/elasticsearch/config/log4j2.properties
+        owner: 1000
+        group: 1000
+        mode: '0666'
+
     - name: Run Elasticsearch container
       community.docker.docker_container:
         name: elasticsearch
@@ -100,3 +108,4 @@
           - /opt/elasticsearch/data:/usr/share/elasticsearch/data
           - /opt/elasticsearch/log:/usr/share/elasticsearch/log
           - /opt/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+          - /opt/elasticsearch/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
