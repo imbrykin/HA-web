@@ -90,5 +90,5 @@
           - "9300:9300"
         volumes:
           - /opt/elasticsearch/data:/usr/share/elasticsearch/data
-          - /opt/elasticsearch/log:/var/log
+          - /opt/elasticsearch/log:/usr/share/elasticsearch/log
           - /opt/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
