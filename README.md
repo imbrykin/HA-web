@@ -124,8 +124,8 @@
     ```
 4. Настройка мониторинга с помощью Zabbix:
     ```bash
-    ansible-playbook -i inventory.ini roles/zabbix-deploy.yaml
-    ansible-playbook -i inventory.ini roles/zabbix-agent-deploy.yaml
+    ansible-playbook -i inventory.ini roles/zabbix/zabbix-deploy.yaml
+    ansible-playbook -i inventory.ini roles/zabbix/zabbix-agent-deploy.yaml
     ```
 5. Настройка сбора логов с помощью Elasticsearch и Kibana:
     ```bash
@@ -197,8 +197,6 @@
 
 ![Упрощенная схема](HA-web.drawio.svg)
 
-- Zabbix, bastion и elastic будут иметь публичные IP после деплоя инфраструктуры. На схеме они не отображены.
-
 ---
 
 ## Доступы
@@ -211,10 +209,10 @@
 
 ```
 curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
+10.11.0.10
 curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
+10.12.0.10
 curl -s http://51.250.38.224/ | grep 'ip-box' | awk -F '[><]' '{print $3}'
+10.10.0.10
 ```
-`10.11.0.10`
-`10.12.0.10`
-`10.10.0.10`
 
