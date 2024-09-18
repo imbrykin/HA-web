@@ -85,7 +85,7 @@
         dest: /opt/elasticsearch/config/elasticsearch.yml
         owner: root
         group: root
-        mode: 0777
+        mode: 0755
 
     - name: Generate log4j2.properties from Jinja2 template
       template:
