@@ -61,6 +61,7 @@
           - /var/lib/docker/containers:/var/lib/docker/containers:ro
           - /opt/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
         command: ["filebeat", "-e", "-strict.perms=false"]
+    
     - name: Add cron job to restart Filebeat-container every hour
       cron:
         name: "Restart Filebeat container"
