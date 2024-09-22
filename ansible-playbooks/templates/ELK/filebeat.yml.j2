@@ -21,7 +21,7 @@ filebeat.inputs:
                     message: "HTTP"
 
 output.elasticsearch:
-  hosts: "https://elastic.internal-cloud:9200"
+  hosts: "http://elastic.internal-cloud:9200"
   username: "elastic"
   password: ""
   ssl.verification_mode: "none"
